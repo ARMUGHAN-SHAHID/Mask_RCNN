@@ -2282,10 +2282,11 @@ class MaskRCNN():
             # print (ara2)
             # ara=[target_coords, target_u,target_i,u_pred,i_pred]
             # print (ara)
-            # print("blah")
-            # i_loss =KL.Lambda(lambda x: dense_i_loss_graph(x[0],x[1],x[2]), name="i_loss")(
-            #     [target_coords, target_i,i_pred])
-            # print ("blah2")
+            ar=[1,2]
+            print("blah")
+            i_loss =KL.Lambda(lambda x: dense_i_loss_graph(*x), name="i_loss")(
+                [target_coords, target_i,i_pred,ar])
+            print ("blah2")
             # u_loss =KL.Lambda(lambda x: dense_u_loss_graph(*x), name="u_loss")(
             #     [target_coords, target_u,target_i,u_pred,i_pred])
             # v_loss =KL.Lambda(lambda x: dense_v_loss_graph(*x), name="v_loss")(
