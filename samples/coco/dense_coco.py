@@ -151,7 +151,7 @@ class DenseCocoDataset(utils.Dataset):
                 path=os.path.join(image_dir, coco.imgs[i]['file_name']),
                 width=coco.imgs[i]["width"],
                 height=coco.imgs[i]["height"])
-        if return_coco:
+        if save_coco:
             self.coco=coco
 
     def auto_download(self, dataDir, dataType, dataYear):
