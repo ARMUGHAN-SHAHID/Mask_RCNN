@@ -619,7 +619,7 @@ def detection_targets_graph(proposals, gt_class_ids, gt_boxes, gt_masks, config,
     masks = tf.round(masks)
 
     #compute x y mapped from 256*256 roi to the hx and y fro the rois heatmap
-    M=config.BODY_UV_RCNN_HEATMAP_SIZE
+    M=tf.constant(config.BODY_UV_RCNN_HEATMAP_SIZE,dtype=tf.float32)
     roi_gt_dp_x=tf.gather(gt_dp_x,roi_gt_box_assignment)
     roi_gt_dp_y=tf.gather(gt_dp_y,roi_gt_box_assignment)
     roi_gt_dp_u=tf.gather(gt_dp_u,roi_gt_box_assignment)
@@ -633,8 +633,10 @@ def detection_targets_graph(proposals, gt_class_ids, gt_boxes, gt_masks, config,
     gt_length_x = x2_source - x1_source
     gt_length_y = y2_source - y1_source
     #
-    roi_gt_dp_y =  ((  roi_gt_dp_y / 256. * gt_length_y  ) + y1_source - y1 ) *  ( M /  ( y2 - y1 ) )
-    roi_gt_dp_y =  ((  roi_gt_dp_x / 256. * gt_length_x  ) + x1_source - x1 ) *  ( M /  ( x2 - x1 ) )
+    roi_ann_size=tf.constant(256,dtype=tf.float32)
+    roi_gt_dp_y =  (  roi_gt_dp_y / roi_ann_size. * gt_length_y  )
+    roi_gt_dp_y=(roi_gt_dp_y + y1_source - y1 ) *  ( M /  ( y2 - y1 ) )
+    roi_gt_dp_y =  ((  roi_gt_dp_x / roi_ann_size. * gt_length_x  ) + x1_source - x1 ) *  ( M /  ( x2 - x1 ) )
 
     roi_gt_dp_y=tf.round(roi_gt_dp_y)
     roi_gt_dp_y=tf.round(roi_gt_dp_y)
