@@ -84,14 +84,14 @@ class CocoConfig(Config):
     # GPU_COUNT = 8
 
     # Number of classes (including background)
-    NUM_CLASSES = 1 + 80  # COCO has 80 classes
+    NUM_CLASSES = 1 + 1  #DPCOCO has 1 class
 
 
 ############################################################
 #  Dataset
 ############################################################
 
-class CocoDataset(utils.Dataset):
+class DenseCocoDataset(utils.Dataset):
     def load_coco(self, dataset_dir, subset, year=DEFAULT_DATASET_YEAR, class_ids=None,
                   class_map=None, return_coco=False, auto_download=False):
         """Load a subset of the COCO dataset.
@@ -108,9 +108,9 @@ class CocoDataset(utils.Dataset):
         if auto_download is True:
             self.auto_download(dataset_dir, subset, year)
 
-        coco = COCO("{}/annotations/instances_{}{}.json".format(dataset_dir, subset, year))
+        # coco = COCO("{}/annotations/instances_{}{}.json".format(dataset_dir, subset, year))
         # densepose_coco_2014_train
-        # coco = COCO("{}/annotations/densepose_coco_{}_{}.json".format(dataset_dir,year,subset))
+        coco = COCO("{}/annotations/densepose_coco_{}_{}.json".format(dataset_dir,year,subset))
         if subset == "minival" or subset == "valminusminival":
             subset = "val"
         image_dir = "{}/{}{}".format(dataset_dir, subset, year)
@@ -119,8 +119,6 @@ class CocoDataset(utils.Dataset):
         if not class_ids:
             # All classes
             class_ids = sorted(coco.getCatIds())
-            print ("================>DEbugging l122 coco.py\nnum classes=")
-            print (len(class_ids))
 
         # All images or a subset?
         if class_ids:
@@ -481,16 +479,16 @@ if __name__ == '__main__':
     if args.command == "train":
         # Training dataset. Use the training set and 35K from the
         # validation set, as as in the Mask RCNN paper.
-        dataset_train = CocoDataset()
+        dataset_train = DenseCocoDataset()
         dataset_train.load_coco(args.dataset, "train", year=args.year, auto_download=args.download)
-        # if args.year in '2014':
-        #     dataset_train.load_coco(args.dataset, "valminusminival", year=args.year, auto_download=args.download)
+        if args.year in '2014':
+            dataset_train.load_coco(args.dataset, "valminusminival", year=args.year, auto_download=args.download)
         dataset_train.prepare()
 
         # Validation dataset
-        dataset_val = CocoDataset()
-        # val_type = "val" if args.year in '2017' else "minival"
-        val_type = "val"        
+        dataset_val = DenseCocoDataset()
+        val_type = "val" if args.year in '2017' else "minival"
+        # val_type = "val"        
         dataset_val.load_coco(args.dataset, val_type, year=args.year, auto_download=args.download)
         dataset_val.prepare()
 
