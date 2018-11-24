@@ -634,7 +634,7 @@ def detection_targets_graph(proposals, gt_class_ids, gt_boxes, gt_masks, config,
     gt_length_y = y2_source - y1_source
     #
     roi_ann_size=tf.constant(256,dtype=tf.float32)
-    roi_gt_dp_y =  (  roi_gt_dp_y / roi_ann_size. * gt_length_y  )
+    roi_gt_dp_y =  (  roi_gt_dp_y / roi_ann_size * gt_length_y  )
     roi_gt_dp_y=(roi_gt_dp_y + y1_source - y1 ) *  ( M /  ( y2 - y1 ) )
     roi_gt_dp_y =  ((  roi_gt_dp_x / roi_ann_size. * gt_length_x  ) + x1_source - x1 ) *  ( M /  ( x2 - x1 ) )
 
