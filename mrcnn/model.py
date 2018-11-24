@@ -741,11 +741,11 @@ class DetectionTargetLayer(KE.Layer):
             (None, self.config.TRAIN_ROIS_PER_IMAGE),  # class_ids
             (None, self.config.TRAIN_ROIS_PER_IMAGE, 4),  # deltas
             (None, self.config.TRAIN_ROIS_PER_IMAGE, self.config.MASK_SHAPE[0],
-             self.config.MASK_SHAPE[1])  # masks
+             self.config.MASK_SHAPE[1]),  # masks
             (None, self.config.TRAIN_ROIS_PER_IMAGE, 196),  # u
             (None, self.config.TRAIN_ROIS_PER_IMAGE, 196),  # v
             (None, self.config.TRAIN_ROIS_PER_IMAGE, 196),  # i
-            (None, self.config.TRAIN_ROIS_PER_IMAGE,196,4),  # inds fro the heatmap(batch,roi,y,x)
+            (None, self.config.TRAIN_ROIS_PER_IMAGE,196,4)  # inds fro the heatmap(batch,roi,y,x)
 
         ]
 
