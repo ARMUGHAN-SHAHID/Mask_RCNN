@@ -670,6 +670,7 @@ def detection_targets_graph(proposals, gt_class_ids, gt_boxes, gt_masks, config,
     roi_gt_dp_u=tf.pad(roi_gt_dp_u,[(0,N+P),(0,0)])
     roi_gt_dp_v=tf.pad(roi_gt_dp_v,[(0,N+P),(0,0)])
     roi_gt_dp_i=tf.pad(roi_gt_dp_i,[(0,N+P),(0,0)])
+
     #for forming coordinates
     roi_gt_dp_rind=tf.range(config.TRAIN_ROIS_PER_IMAGE) 
     roi_gt_dp_rind=tf.reshape(roi_gt_dp_rind,(-1,1))
@@ -2276,12 +2277,12 @@ class MaskRCNN():
             mask_loss = KL.Lambda(lambda x: mrcnn_mask_loss_graph(*x), name="mrcnn_mask_loss")(
                 [target_mask, target_class_ids, mrcnn_mask])
             # print ("blah")(target_coords,target_u,target_i,pred_map_u,pred_logits_i)
-            ara=[target_coords, target_u,target_i,u_pred,i_pred]
-            print (len(ara))
-            print("blah1")
-            i_loss =KL.Lambda(lambda x: dense_i_loss_graph(*x), name="i_loss")(
+            # ara=[target_coords, target_u,target_i,u_pred,i_pred]
+            # print (len(ara))
+            print("blah")
+            i_loss =KL.Lambda(lambda x: dense_i_loss_graph(x[0],x[1],x[2]), name="i_loss")(
                 [target_coords, target_i,i_pred])
-            print ("blah")
+            print ("blah2")
             u_loss =KL.Lambda(lambda x: dense_u_loss_graph(*x), name="u_loss")(
                 [target_coords, target_u,target_i,u_pred,i_pred])
             v_loss =KL.Lambda(lambda x: dense_v_loss_graph(*x), name="v_loss")(
