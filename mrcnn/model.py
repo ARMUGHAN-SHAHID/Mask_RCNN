@@ -1110,6 +1110,7 @@ def build_fpn_shared_densepose_branch(rois,feature_maps, image_meta,
         curr=KL.Activation('relu')(curr)
 
     return curr
+    
 def build_dense_u_v_i_graph(feature_map,config):
     num_patches=config.BODY_UV_RCNN_NUM_PATCHES
     ks=config.BODY_UV_RCNN_DECONV_KERNEL
@@ -1317,7 +1318,7 @@ def dense_i_loss_graph(target_coords,target_i,pred_logits) :
     loss = tf.reduce_mean(loss)
     return loss
 
-def dense_u_loss_graph(target_coords,target_u,target_i,pred_map_u,pred_logits_i) :
+def dense_u_loss_graph(target_coords, target_u, target_i, pred_map_u, pred_logits_i) :
     print("1")
     pred_i=tf.argmax(pred_logits_i,axis=4) #finding class pred for each roi
     print("2")
@@ -2233,7 +2234,7 @@ class MaskRCNN():
             # Note that proposal class IDs, gt_boxes, and gt_masks are zero
             # padded. Equally, returned rois and targets are zero padded.
 
-            rois, target_class_ids, target_bbox, target_mask,target_u,taret_v,target_i,target_coords =\
+            rois, target_class_ids, target_bbox, target_mask,target_u,target_v,target_i,target_coords =\
                 DetectionTargetLayer(config,image_shape=config.IMAGE_SHAPE[:2],name="proposal_targets")([
                     target_rois, input_gt_class_ids, gt_boxes, input_gt_masks,
                     input_dp_x,input_dp_y,input_dp_u,input_dp_v,input_dp_i])
@@ -2273,13 +2274,15 @@ class MaskRCNN():
                 [target_bbox, target_class_ids, mrcnn_bbox])
             mask_loss = KL.Lambda(lambda x: mrcnn_mask_loss_graph(*x), name="mrcnn_mask_loss")(
                 [target_mask, target_class_ids, mrcnn_mask])
+            # print ("blah")(target_coords,target_u,target_i,pred_map_u,pred_logits_i)
+            i_loss =KL.Lambda(lambda x: dense_i_loss_graph(*x), name="i_loss")(
+                [target_coords, target_i,i_pred])
             print ("blah")
             u_loss =KL.Lambda(lambda x: dense_u_loss_graph(*x), name="u_loss")(
                 [target_coords, target_u,target_i,u_pred,i_pred])
             v_loss =KL.Lambda(lambda x: dense_v_loss_graph(*x), name="v_loss")(
                 [target_coords, target_v,target_i,v_pred,i_pred])
-            i_loss =KL.Lambda(lambda x: dense_i_loss_graph(*x), name="i_loss")(
-                [target_coords, target_i,i_pred])
+            
 
             # Model
             inputs = [input_image, input_image_meta,
