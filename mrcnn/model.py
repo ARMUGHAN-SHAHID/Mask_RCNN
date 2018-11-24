@@ -1236,6 +1236,7 @@ def mrcnn_class_loss_graph(target_class_ids, pred_class_logits,
 
 
 def mrcnn_bbox_loss_graph(target_bbox, target_class_ids, pred_bbox):
+    print ("bulaya hai\n")
     """Loss for Mask R-CNN bounding box refinement.
 
     target_bbox: [batch, num_rois, (dy, dx, log(dh), log(dw))]
