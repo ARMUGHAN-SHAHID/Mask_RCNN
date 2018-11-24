@@ -1320,7 +1320,7 @@ def mrcnn_mask_loss_graph(target_masks, target_class_ids, pred_masks):
 #     loss = tf.reduce_mean(loss)
 #     return loss
 def dense_i_loss_graph(x) :
-
+    print (x)
     print ("blah again",len(x))
     filtered_inds=tf.where(target_i>0)#wheer target class is not background
     filtered_i=tf.gather_nd(target_i,filtered_inds)
@@ -2307,7 +2307,7 @@ class MaskRCNN():
             #     [target_coords, target_i,i_pred])
 
             i_loss =KL.Lambda(lambda x: dense_i_loss_graph(x), name="i_loss")(
-                [target_mask, target_class_ids, mrcnn_mask])
+                [target_coords, target_i,i_pred])
             print ("blah2")
             # u_loss =KL.Lambda(lambda x: dense_u_loss_graph(*x), name="u_loss")(
             #     [target_coords, target_u,target_i,u_pred,i_pred])
