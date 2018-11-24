@@ -92,8 +92,11 @@ class CocoConfig(Config):
 ############################################################
 
 class DenseCocoDataset(utils.Dataset):
+    def __init__(self):
+        Dataset.__init__(self)
+        self.coco=None 
     def load_coco(self, dataset_dir, subset, year=DEFAULT_DATASET_YEAR, class_ids=None,
-                  class_map=None, return_coco=False, auto_download=False):
+                  class_map=None, save_coco=False, auto_download=False):
         """Load a subset of the COCO dataset.
         dataset_dir: The root directory of the COCO dataset.
         subset: What to load (train, val, minival, valminusminival)
@@ -101,7 +104,7 @@ class DenseCocoDataset(utils.Dataset):
         class_ids: If provided, only loads images that have the given classes.
         class_map: TODO: Not implemented yet. Supports maping classes from
             different datasets to the same class ID.
-        return_coco: If True, returns the COCO object.
+        save_coco: If True, saves the COCO object.
         auto_download: Automatically download and unzip MS-COCO images and annotations
         """
 
@@ -134,16 +137,22 @@ class DenseCocoDataset(utils.Dataset):
             self.add_class("coco", i, coco.loadCats(i)[0]["name"])
 
         # Add images
+        # for i in image_ids:
+        #     self.add_image(
+        #         "coco", image_id=i,
+        #         path=os.path.join(image_dir, coco.imgs[i]['file_name']),
+        #         width=coco.imgs[i]["width"],
+        #         height=coco.imgs[i]["height"],
+        #         annotations=coco.loadAnns(coco.getAnnIds(
+        #             imgIds=[i], catIds=class_ids, iscrowd=None)))
         for i in image_ids:
             self.add_image(
                 "coco", image_id=i,
                 path=os.path.join(image_dir, coco.imgs[i]['file_name']),
                 width=coco.imgs[i]["width"],
-                height=coco.imgs[i]["height"],
-                annotations=coco.loadAnns(coco.getAnnIds(
-                    imgIds=[i], catIds=class_ids, iscrowd=None)))
+                height=coco.imgs[i]["height"])
         if return_coco:
-            return coco
+            self.coco=coco
 
     def auto_download(self, dataDir, dataType, dataYear):
         """Download the COCO dataset/annotations if requested.
@@ -243,8 +252,9 @@ class DenseCocoDataset(utils.Dataset):
         # dense_i=[]
         # dense_u=[]
         # dense_v=[]
-
-        annotations = self.image_info[image_id]["annotations"]
+        annotations=self.coco.loadAnns(coco.getAnnIds(
+                    imgIds=[image_id],iscrowd=None))
+        # annotations = self.image_info[image_id]["annotations"]
         # Build mask of shape [height, width, instance_count] and list
         # of class IDs that correspond to each channel of the mask.
         for annotation in annotations:
@@ -498,7 +508,7 @@ if __name__ == '__main__':
         dataset_train = DenseCocoDataset()
         # dataset_train.load_coco(args.dataset, "train", year=args.year, auto_download=args.download)
         if args.year in '2014':
-            dataset_train.load_coco(args.dataset, "valminusminival", year=args.year, auto_download=args.download)
+            dataset_train.load_coco(args.dataset, "valminusminival", year=args.year, auto_download=args.download,save_coco=True)
         dataset_train.prepare()
 
         # Validation dataset
