@@ -630,12 +630,12 @@ def detection_targets_graph(proposals, gt_class_ids, gt_boxes, gt_masks, config,
     y1, x1, y2, x2 = tf.split(denorm_boxes_graph(positive_rois,im_shape), 4, axis=1)
 
 
-    gt_length_x =tf.cast(( x2_source - x1_source),tf.float32)
-    gt_length_y = tf.cast((y2_source - y1_source),tf.float32)
+    gt_length_x = x2_source - x1_source
+    gt_length_y = y2_source - y1_source
     #
-    roi_ann_size=tf.constant(256,dtype=tf.float32)
-    roi_gt_dp_y =  (  (roi_gt_dp_y / roi_ann_size) * gt_length_y  )
-    roi_gt_dp_y=(roi_gt_dp_y + y1_source - y1 ) *  ( M /  ( y2 - y1 ) )
+    roi_ann_size=tf.constant(256.0,dtype=tf.float32)
+    roi_gt_dp_y = ( (  (roi_gt_dp_y / roi_ann_size) * gt_length_y  )+y1_source - y1 ) *  ( M /  ( y2 - y1 ) )
+    # roi_gt_dp_y=(roi_gt_dp_y + y1_source - y1 ) *  ( M /  ( y2 - y1 ) )
 
     roi_gt_dp_x =  ((  roi_gt_dp_x / roi_ann_size * gt_length_x  ) + x1_source - x1 ) *  ( M /  ( x2 - x1 ) )
 
@@ -3122,4 +3122,4 @@ def denorm_boxes_graph(boxes, shape):
     h, w = tf.split(tf.cast(shape, tf.float32), 2)
     scale = tf.concat([h, w, h, w], axis=-1) - tf.constant(1.0)
     shift = tf.constant([0., 0., 1., 1.])
-    return tf.cast(tf.round(tf.multiply(boxes, scale) + shift), tf.int32)
+    return tf.cast(tf.round(tf.multiply(boxes, scale) + shift), tf.float32)
