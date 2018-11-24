@@ -1305,7 +1305,7 @@ def mrcnn_mask_loss_graph(target_masks, target_class_ids, pred_masks):
     return loss
 
 def dense_i_loss_graph(target_coords,target_i,pred_logits) :
-    print ("blah again")
+    print ("blah againl1308")
     print (target_coords)
     print (target_i)
     print (pred_logits)
@@ -2259,10 +2259,10 @@ class MaskRCNN():
                 DetectionTargetLayer(config,image_shape=config.IMAGE_SHAPE[:2],name="proposal_targets")([
                     target_rois, input_gt_class_ids, gt_boxes, input_gt_masks,
                     input_dp_x,input_dp_y,input_dp_u,input_dp_v,input_dp_i])
-            print ("Target bbox shape")
-            print (target_bbox)
-            print ("target_i shape")
-            print (target_i)
+            # print ("Target bbox shape")
+            # print (target_bbox)
+            # print ("target_i shape")
+            # print (target_i)
             # Network Heads
             # TODO: verify that this handles zero padded ROIs
             mrcnn_class_logits, mrcnn_class, mrcnn_bbox =\
@@ -2305,7 +2305,7 @@ class MaskRCNN():
             # ara=[target_coords, target_u,target_i,u_pred,i_pred]
             # print (ara)
             # ar=[1,2]
-            # # print("blah")
+            print("calling i loss")
             i_loss =KL.Lambda(lambda x: dense_i_loss_graph(*x), name="i_loss")(
                 [target_coords, target_i,i_pred])
 
