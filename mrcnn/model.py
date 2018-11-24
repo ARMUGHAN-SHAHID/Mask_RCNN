@@ -2285,15 +2285,16 @@ class MaskRCNN():
                 [target_bbox, target_class_ids, mrcnn_bbox])
             mask_loss = KL.Lambda(lambda x: mrcnn_mask_loss_graph(*x), name="mrcnn_mask_loss")(
                 [target_mask, target_class_ids, mrcnn_mask])
-           
+           print ("calling u loss")
+           u_loss =KL.Lambda(lambda x: dense_u_loss_graph(*x), name="u_loss")(
+                [target_coords, target_u,target_i,u_pred,i_pred])
+            v_loss =KL.Lambda(lambda x: dense_v_loss_graph(*x), name="v_loss")(
+                [target_coords, target_v,target_i,v_pred,i_pred])
             print("calling i loss")
             i_loss =KL.Lambda(lambda x: dense_i_loss_graph(*x), name="i_loss")(
                 [target_coords, target_i,i_pred])          
             print ("blah2")
-            u_loss =KL.Lambda(lambda x: dense_u_loss_graph(*x), name="u_loss")(
-                [target_coords, target_u,target_i,u_pred,i_pred])
-            v_loss =KL.Lambda(lambda x: dense_v_loss_graph(*x), name="v_loss")(
-                [target_coords, target_v,target_i,v_pred,i_pred])
+            
             
 
             # Model
@@ -2302,14 +2303,14 @@ class MaskRCNN():
                       input_dp_x,input_dp_y,input_dp_u,input_dp_v,input_dp_i]
             if not config.USE_RPN_ROIS:
                 inputs.append(input_rois)
-            # outputs = [rpn_class_logits, rpn_class, rpn_bbox,
-            #            mrcnn_class_logits, mrcnn_class, mrcnn_bbox, mrcnn_mask,
-            #            rpn_rois, output_rois,
-            #            rpn_class_loss, rpn_bbox_loss, class_loss, bbox_loss, mask_loss,u_loss,v_loss,i_loss]
             outputs = [rpn_class_logits, rpn_class, rpn_bbox,
                        mrcnn_class_logits, mrcnn_class, mrcnn_bbox, mrcnn_mask,
                        rpn_rois, output_rois,
-                       rpn_class_loss, rpn_bbox_loss, class_loss, bbox_loss, mask_loss]
+                       rpn_class_loss, rpn_bbox_loss, class_loss, bbox_loss, mask_loss,u_loss,v_loss,i_loss]
+            # outputs = [rpn_class_logits, rpn_class, rpn_bbox,
+            #            mrcnn_class_logits, mrcnn_class, mrcnn_bbox, mrcnn_mask,
+            #            rpn_rois, output_rois,
+            #            rpn_class_loss, rpn_bbox_loss, class_loss, bbox_loss, mask_loss]
             model = KM.Model(inputs, outputs, name='mask_rcnn')
         else:
             # Network Heads
