@@ -108,7 +108,9 @@ class CocoDataset(utils.Dataset):
         if auto_download is True:
             self.auto_download(dataset_dir, subset, year)
 
-        coco = COCO("{}/annotations/instances_{}{}.json".format(dataset_dir, subset, year))
+        # coco = COCO("{}/annotations/instances_{}{}.json".format(dataset_dir, subset, year))
+        densepose_coco_2014_train
+        coco = COCO("{}/densepose_coco_{}_{}.json".format(dataset_dir,year,subset))
         if subset == "minival" or subset == "valminusminival":
             subset = "val"
         image_dir = "{}/{}{}".format(dataset_dir, subset, year)
@@ -460,9 +462,9 @@ if __name__ == '__main__':
     # Select weights file to load
     if args.model.lower() == "coco":
         model_path = COCO_MODEL_PATH
-    elif args.model.lower() == "last":
-        # Find last trained weights
-        model_path = model.find_last()
+    # elif args.model.lower() == "last":
+    #     # Find last trained weights
+    #     model_path = model.find_last()
     elif args.model.lower() == "imagenet":
         # Start from ImageNet trained weights
         model_path = model.get_imagenet_weights()
@@ -470,8 +472,8 @@ if __name__ == '__main__':
         model_path = args.model
 
     # Load weights
-    print("Loading weights ", model_path)
-    model.load_weights(model_path, by_name=True)
+    # print("Loading weights ", model_path)
+    # model.load_weights(model_path, by_name=True)
 
     # Train or evaluate
     if args.command == "train":
