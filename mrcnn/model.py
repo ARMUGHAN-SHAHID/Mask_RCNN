@@ -639,8 +639,8 @@ def detection_targets_graph(proposals, gt_class_ids, gt_boxes, gt_masks, config,
 
     roi_gt_dp_x =  ((  roi_gt_dp_x / roi_ann_size * gt_length_x  ) + x1_source - x1 ) *  ( M /  ( x2 - x1 ) )
 
-    roi_gt_dp_y=tf.round(roi_gt_dp_y)
-    roi_gt_dp_x=tf.round(roi_gt_dp_x)
+    roi_gt_dp_y=tf.cast(tf.round(roi_gt_dp_y),tf.int32)
+    roi_gt_dp_x=tf.cast(tf.round(roi_gt_dp_x),tf.intt32)
 
 
     i1= tf.cast(tf.greater_equal(roi_gt_dp_x, 0* tf.ones_like(roi_gt_dp_x)), tf.int32)
