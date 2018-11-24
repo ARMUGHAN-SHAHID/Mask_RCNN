@@ -93,7 +93,7 @@ class CocoConfig(Config):
 
 class DenseCocoDataset(utils.Dataset):
     def __init__(self):
-        Dataset.__init__(self)
+        super().__init__()
         self.coco=None 
     def load_coco(self, dataset_dir, subset, year=DEFAULT_DATASET_YEAR, class_ids=None,
                   class_map=None, save_coco=False, auto_download=False):
