@@ -866,7 +866,10 @@ def batch_slice_with_batch_num_included(inputs, graph_fn, batch_size, names=None
               for o, n in zip(outputs, names)]
     if len(result) == 1:
         result = result[0]
+        
     print ("l869\n")
+    for i in result:
+        print(i)
     print (len(result))
 
     return result
