@@ -103,6 +103,8 @@ class Config(object):
     USE_MINI_MASK = True
     MINI_MASK_SHAPE = (56, 56)  # (height, width) of the mini-mask
 
+    
+
     # Input image resizing
     # Generally, use the "square" resizing mode for training and predicting
     # and it should work well in most cases. In this mode, images are scaled
@@ -153,6 +155,7 @@ class Config(object):
     POOL_SIZE = 7
     MASK_POOL_SIZE = 14
 
+
     # Shape of output mask
     # To change this you also need to change the neural network mask branch
     MASK_SHAPE = [28, 28]
@@ -163,6 +166,17 @@ class Config(object):
     # Bounding box refinement standard deviation for RPN and final detections.
     RPN_BBOX_STD_DEV = np.array([0.1, 0.1, 0.2, 0.2])
     BBOX_STD_DEV = np.array([0.1, 0.1, 0.2, 0.2])
+
+    #configuration for densepose branch
+    BODY_UV_RCNN_NUM_STACKED_CONVS=8
+    BODY_UV_RCNN_NUM_PATCHES=24
+    BODY_UV_RCNN_KERNEL=3
+    BODY_UV_RCNN_CONV_HEAD_DIM=512
+    BODY_UV_RCNN_DECONV_KERNEL=4
+    BODY_UV_RCNN_POOL_SIZE=14
+    #size of heat map target of uv coordinates
+    BODY_UV_RCNN_HEATMAP_SIZE=56
+
 
     # Max number of final detections
     DETECTION_MAX_INSTANCES = 100
@@ -191,7 +205,10 @@ class Config(object):
         "rpn_bbox_loss": 1.,
         "mrcnn_class_loss": 1.,
         "mrcnn_bbox_loss": 1.,
-        "mrcnn_mask_loss": 1.
+        "mrcnn_mask_loss": 1.,
+        "u_loss": 1.,
+        "v_loss": 1.,
+        "i_loss": 1.
     }
 
     # Use RPN ROIs or externally generated ROIs for training

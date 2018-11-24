@@ -108,8 +108,6 @@ class DenseCocoDataset(utils.Dataset):
         if auto_download is True:
             self.auto_download(dataset_dir, subset, year)
 
-        # coco = COCO("{}/annotations/instances_{}{}.json".format(dataset_dir, subset, year))
-        # densepose_coco_2014_train
         coco = COCO("{}/annotations/densepose_coco_{}_{}.json".format(dataset_dir,year,subset))
         if subset == "minival" or subset == "valminusminival":
             subset = "val"
@@ -219,6 +217,7 @@ class DenseCocoDataset(utils.Dataset):
             print("... done unzipping")
         print("Will use annotations in " + annFile)
 
+    #changed to get densepose variables eg x y i u v
     def load_mask(self, image_id):
         """Load instance masks for the given image.
 
@@ -238,6 +237,13 @@ class DenseCocoDataset(utils.Dataset):
 
         instance_masks = []
         class_ids = []
+
+        dense_x=[]
+        dense_y=[]
+        dense_i=[]
+        dense_u=[]
+        dense_v=[]
+
         annotations = self.image_info[image_id]["annotations"]
         # Build mask of shape [height, width, instance_count] and list
         # of class IDs that correspond to each channel of the mask.
@@ -260,16 +266,23 @@ class DenseCocoDataset(utils.Dataset):
                     if m.shape[0] != image_info["height"] or m.shape[1] != image_info["width"]:
                         m = np.ones([image_info["height"], image_info["width"]], dtype=bool)
                 instance_masks.append(m)
+                dense_x.append(annotation['dp_x'])
+                dense_y.append(annotation['dp_y'])
+                dense_u.append(annotation['dp_U'])
+                dense_v.append(annotation['dp_V'])
+                dense_i.append(annotation['dp_I'])
+
                 class_ids.append(class_id)
 
         # Pack instance masks into an array
         if class_ids:
             mask = np.stack(instance_masks, axis=2).astype(np.bool)
             class_ids = np.array(class_ids, dtype=np.int32)
-            return mask, class_ids
+            return mask, class_ids,dense_x,dense_y,dense_u,dense_v,dense_i #changed
         else:
             # Call super class to return an empty mask
-            return super(CocoDataset, self).load_mask(image_id)
+            n=np.zeros(0)
+            return super(CocoDataset, self).load_mask(image_id),n,n,n,n,n
 
     def image_reference(self, image_id):
         """Return a link to the image in the COCO Website."""
@@ -453,6 +466,7 @@ if __name__ == '__main__':
 
     # Create model
     if args.command == "train":
+        print ("constructing model<===\n")
         model = modellib.MaskRCNN(mode="training", config=config,
                                   model_dir=args.logs)
     else:
@@ -463,8 +477,8 @@ if __name__ == '__main__':
     if args.model.lower() == "coco":
         model_path = COCO_MODEL_PATH
     # elif args.model.lower() == "last":
-    #     # Find last trained weights
-    #     model_path = model.find_last()
+        # Find last trained weights
+        # model_path = model.find_last()
     elif args.model.lower() == "imagenet":
         # Start from ImageNet trained weights
         model_path = model.get_imagenet_weights()
@@ -488,32 +502,31 @@ if __name__ == '__main__':
         # Validation dataset
         dataset_val = DenseCocoDataset()
         val_type = "val" if args.year in '2017' else "minival"
-        # val_type = "val"        
         dataset_val.load_coco(args.dataset, val_type, year=args.year, auto_download=args.download)
         dataset_val.prepare()
 
         # Image Augmentation
         # Right/Left flip 50% of the time
-        augmentation = imgaug.augmenters.Fliplr(0.5)
-
+        # augmentation = imgaug.augmenters.Fliplr(0.5)
+        augmentation=None
         # *** This training schedule is an example. Update to your needs ***
 
-        # Training - Stage 1
-        print("Training network heads")
-        model.train(dataset_train, dataset_val,
-                    learning_rate=config.LEARNING_RATE,
-                    epochs=40,
-                    layers='heads',
-                    augmentation=augmentation)
+        # # Training - Stage 1
+        # print("Training network heads")
+        # model.train(dataset_train, dataset_val,
+        #             learning_rate=config.LEARNING_RATE,
+        #             epochs=40,
+        #             layers='heads',
+        #             augmentation=augmentation)
 
-        # Training - Stage 2
-        # Finetune layers from ResNet stage 4 and up
-        print("Fine tune Resnet stage 4 and up")
-        model.train(dataset_train, dataset_val,
-                    learning_rate=config.LEARNING_RATE,
-                    epochs=120,
-                    layers='4+',
-                    augmentation=augmentation)
+        # # Training - Stage 2
+        # # Finetune layers from ResNet stage 4 and up
+        # print("Fine tune Resnet stage 4 and up")
+        # model.train(dataset_train, dataset_val,
+        #             learning_rate=config.LEARNING_RATE,
+        #             epochs=120,
+        #             layers='4+',
+        #             augmentation=augmentation)
 
         # Training - Stage 3
         # Fine tune all layers
