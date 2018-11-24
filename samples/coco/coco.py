@@ -110,7 +110,7 @@ class CocoDataset(utils.Dataset):
 
         # coco = COCO("{}/annotations/instances_{}{}.json".format(dataset_dir, subset, year))
         # densepose_coco_2014_train
-        coco = COCO("{}/densepose_coco_{}_{}.json".format(dataset_dir,year,subset))
+        coco = COCO("{}/annotations/densepose_coco_{}_{}.json".format(dataset_dir,year,subset))
         if subset == "minival" or subset == "valminusminival":
             subset = "val"
         image_dir = "{}/{}{}".format(dataset_dir, subset, year)
