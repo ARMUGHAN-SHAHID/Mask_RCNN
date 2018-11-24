@@ -1102,7 +1102,7 @@ def build_fpn_shared_densepose_branch(rois,feature_maps, image_meta,
     hidden_dim=config.BODY_UV_RCNN_CONV_HEAD_DIM
 
     curr = PyramidROIAlign([pool_size, pool_size],
-                        name="roi_align_mask")([rois, image_meta] + feature_maps)
+                        name="roi_align_dense")([rois, image_meta] + feature_maps)
 
     # Conv layers
     for i in np.arange(config.BODY_UV_RCNN_NUM_STACKED_CONVS):
