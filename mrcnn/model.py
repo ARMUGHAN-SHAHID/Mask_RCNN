@@ -1236,7 +1236,7 @@ def mrcnn_class_loss_graph(target_class_ids, pred_class_logits,
 
 
 def mrcnn_bbox_loss_graph(target_bbox, target_class_ids, pred_bbox):
-    print ("bulaya hai\n")
+    # print ("bulaya hai\n")
     """Loss for Mask R-CNN bounding box refinement.
 
     target_bbox: [batch, num_rois, (dy, dx, log(dh), log(dw))]
@@ -1306,19 +1306,23 @@ def mrcnn_mask_loss_graph(target_masks, target_class_ids, pred_masks):
     return loss
 
 def dense_i_loss_graph(target_coords,target_i,pred_logits) :
-    print ("blah againl1308")
-    print (target_coords)
-    print (target_i)
-    print (pred_logits)
-    print ("in finished")
+    target_coords=tf.cast(target_coords,tf.int32)
+    target_i=tf.cast(target_i,tf.int32)
+    pred_logits=tf.cast(pred_logits,tf.float32)
+
+    # print ("blah againl1308")
+    # print (target_coords)
+    # print (target_i)
+    # print (pred_logits)
+    # print ("in finished")
     filtered_inds=tf.where(target_i>0)#wheer target class is not background
-    print ("hello")
-    print (filtered_inds)
+    # print ("hello")
+    # print (filtered_inds)
     filtered_i=tf.gather_nd(target_i,filtered_inds)
-    print (filtered_i)
+    # print (filtered_i)
     filtered_coords=tf.gather_nd(target_coords,filtered_inds)
-    print (filtered_coords)
-    print ("end")
+    # print (filtered_coords)
+    # print ("end")
     pred_logits=tf.gather_nd(pred_logits,filtered_coords)
 
     loss = tf.nn.sparse_softmax_cross_entropy_with_logits(
@@ -1331,7 +1335,12 @@ def dense_i_loss_graph(target_coords,target_i,pred_logits) :
 
 
 def dense_u_loss_graph(target_coords, target_u, target_i, pred_map_u, pred_logits_i) :
-    print("1")
+    target_coords=tf.cast(target_coords,tf.int32)
+    target_i=tf.cast(target_i,tf.int32)
+    target_u=tf.cast(target_u,tf.float32)
+    pred_map_u=tf.cast(pred_map_u,tf.float32)
+    pred_logits_i=tf.cast(pred_logits_i,tf.float32)
+
     pred_i=tf.argmax(pred_logits_i,axis=4) #finding class pred for each roi
     # print("2")
     
@@ -1357,6 +1366,12 @@ def dense_u_loss_graph(target_coords, target_u, target_i, pred_map_u, pred_logit
     return loss
 
 def dense_v_loss_graph(target_coords,target_v,target_i,pred_map_v,pred_logits_i) :
+    target_coords=tf.cast(target_coords,tf.int32)
+    target_i=tf.cast(target_i,tf.int32)
+    target_v=tf.cast(target_v,tf.float32)
+    pred_map_v=tf.cast(pred_map_v,tf.float32)
+    pred_logits_i=tf.cast(pred_logits_i,tf.float32)
+
     pred_i=tf.argmax(pred_logits_i,axis=4) #finding class pred for each roi
     filtered_inds=tf.where(target_i>0)#where target class is not background
 
@@ -2278,17 +2293,17 @@ class MaskRCNN():
             mask_loss = KL.Lambda(lambda x: mrcnn_mask_loss_graph(*x), name="mrcnn_mask_loss")(
                 [target_mask, target_class_ids, mrcnn_mask])
             print ("calling u loss")
-            u_loss=dense_u_loss_graph(target_coords, target_u,target_i,u_pred,i_pred)
-            # u_loss =KL.Lambda(lambda x: dense_u_loss_graph(*x), name="u_loss")(
-            #     [target_coords, target_u,target_i,u_pred,i_pred])
+            # u_loss=dense_u_loss_graph(target_coords, target_u,target_i,u_pred,i_pred)
+            u_loss =KL.Lambda(lambda x: dense_u_loss_graph(*x), name="u_loss")(
+                [target_coords, target_u,target_i,u_pred,i_pred])
             print ("calling v loss")
-            v_loss=dense_v_loss_graph(target_coords, target_v,target_i,v_pred,i_pred)
-            # v_loss =KL.Lambda(lambda x: dense_v_loss_graph(*x), name="v_loss")(
-            #     [target_coords, target_v,target_i,v_pred,i_pred])
+            # v_loss=dense_v_loss_graph(target_coords, target_v,target_i,v_pred,i_pred)
+            v_loss =KL.Lambda(lambda x: dense_v_loss_graph(*x), name="v_loss")(
+                [target_coords, target_v,target_i,v_pred,i_pred])
             print("calling i loss")
-            i_loss=dense_i_loss_graph(target_coords, target_i,i_pred)
-            # i_loss =KL.Lambda(lambda x: dense_i_loss_graph(*x), name="i_loss")(
-            #     [target_coords, target_i,i_pred])          
+            # i_loss=dense_i_loss_graph(target_coords, target_i,i_pred)
+            i_loss =KL.Lambda(lambda x: dense_i_loss_graph(*x), name="i_loss")(
+                [target_coords, target_i,i_pred])          
             print ("blah2")
             
             
