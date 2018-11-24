@@ -292,9 +292,11 @@ class DenseCocoDataset(utils.Dataset):
             return mask, class_ids
 
         else:
+            print ("no class found")
             # Call super class to return an empty mask
             n=np.zeros(0)
-            return super(CocoDataset, self).load_mask(image_id),n,n,n,n,n
+            m = np.zeros([image_info["height"], image_info["width"]], dtype=np.uint8)
+            return m,n
 
     def image_reference(self, image_id):
         """Return a link to the image in the COCO Website."""
