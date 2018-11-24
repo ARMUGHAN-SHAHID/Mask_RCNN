@@ -2240,7 +2240,10 @@ class MaskRCNN():
                 DetectionTargetLayer(config,image_shape=config.IMAGE_SHAPE[:2],name="proposal_targets")([
                     target_rois, input_gt_class_ids, gt_boxes, input_gt_masks,
                     input_dp_x,input_dp_y,input_dp_u,input_dp_v,input_dp_i])
-
+            print ("Target bbox shape")
+            print (target_bbox)
+            print ("target_i shape")
+            print (target_i)
             # Network Heads
             # TODO: verify that this handles zero padded ROIs
             mrcnn_class_logits, mrcnn_class, mrcnn_bbox =\
@@ -2259,8 +2262,8 @@ class MaskRCNN():
                                               config.BODY_UV_RCNN_POOL_SIZE,
                                               config,
                                               train_bn=config.TRAIN_BN)
-            print (feature_map_dense)
-            print ("hello")
+            # print (feature_map_dense)
+            # print ("hello")
             u_pred,v_pred,i_pred=build_dense_u_v_i_graph(feature_map_dense,config)
 
             # TODO: clean up (use tf.identify if necessary)
@@ -2282,10 +2285,10 @@ class MaskRCNN():
             # print (ara2)
             # ara=[target_coords, target_u,target_i,u_pred,i_pred]
             # print (ara)
-            ar=[1,2]
-            print("blah")
+            # ar=[1,2]
+            # print("blah")
             i_loss =KL.Lambda(lambda x: dense_i_loss_graph(*x), name="i_loss")(
-                [target_coords, target_i,i_pred,ar])
+                [target_coords, target_i,i_pred,i_pred])
             print ("blah2")
             # u_loss =KL.Lambda(lambda x: dense_u_loss_graph(*x), name="u_loss")(
             #     [target_coords, target_u,target_i,u_pred,i_pred])
