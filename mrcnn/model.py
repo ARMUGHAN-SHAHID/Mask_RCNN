@@ -1898,7 +1898,7 @@ def data_generator(dataset, config, shuffle=True, augment=False, augmentation=No
                               augmentation=None,
                               use_mini_mask=config.USE_MINI_MASK)
             else:#changed
-                image, image_meta, gt_class_ids, gt_boxes, gt_masks,,dp_x,dp_y,dp_u,dp_v,dp_i = \
+                image, image_meta, gt_class_ids, gt_boxes, gt_masks,dp_x,dp_y,dp_u,dp_v,dp_i = \
                     load_image_gt(dataset, config, image_id, augment=augment,
                                 augmentation=augmentation,
                                 use_mini_mask=config.USE_MINI_MASK)
