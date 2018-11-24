@@ -1323,13 +1323,13 @@ def dense_i_loss_graph(target_coords,target_i,pred_logits) :
 def dense_u_loss_graph(target_coords, target_u, target_i, pred_map_u, pred_logits_i) :
     print("1")
     pred_i=tf.argmax(pred_logits_i,axis=4) #finding class pred for each roi
-    print("2")
+    # print("2")
     
     filtered_inds=tf.where(target_i>0)#where target class is not background
-    print("3")
+    # print("3")
 
     filtered_i=tf.gather_nd(target_i,filtered_inds)
-    print("4")
+    # print("4")
 
     filtered_u=tf.gather_nd(target_u,filtered_inds)
     filtered_coords=tf.gather_nd(target_coords,filtered_inds)
@@ -2277,8 +2277,8 @@ class MaskRCNN():
             mask_loss = KL.Lambda(lambda x: mrcnn_mask_loss_graph(*x), name="mrcnn_mask_loss")(
                 [target_mask, target_class_ids, mrcnn_mask])
             # print ("blah")(target_coords,target_u,target_i,pred_map_u,pred_logits_i)
-            # ara=[target_coords, target_u,target_i,u_pred,i_pred]
-            # print (len(ara))
+            ara=[target_coords, target_u,target_i,u_pred,i_pred]
+            print (ara)
             print("blah")
             i_loss =KL.Lambda(lambda x: dense_i_loss_graph(x[0],x[1],x[2]), name="i_loss")(
                 [target_coords, target_i,i_pred])
