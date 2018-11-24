@@ -2281,12 +2281,13 @@ class MaskRCNN():
             # u_loss =KL.Lambda(lambda x: dense_u_loss_graph(*x), name="u_loss")(
             #     [target_coords, target_u,target_i,u_pred,i_pred])
             print ("calling v loss")
-
-            v_loss =KL.Lambda(lambda x: dense_v_loss_graph(*x), name="v_loss")(
-                [target_coords, target_v,target_i,v_pred,i_pred])
+            v_loss=dense_v_loss_graph(target_coords, target_v,target_i,v_pred,i_pred)
+            # v_loss =KL.Lambda(lambda x: dense_v_loss_graph(*x), name="v_loss")(
+            #     [target_coords, target_v,target_i,v_pred,i_pred])
             print("calling i loss")
-            i_loss =KL.Lambda(lambda x: dense_i_loss_graph(*x), name="i_loss")(
-                [target_coords, target_i,i_pred])          
+            i_loss=dense_i_loss_graph(target_coords, target_i,i_pred)
+            # i_loss =KL.Lambda(lambda x: dense_i_loss_graph(*x), name="i_loss")(
+            #     [target_coords, target_i,i_pred])          
             print ("blah2")
             
             
