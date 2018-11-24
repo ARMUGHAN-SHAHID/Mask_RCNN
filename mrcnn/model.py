@@ -1305,14 +1305,18 @@ def mrcnn_mask_loss_graph(target_masks, target_class_ids, pred_masks):
     return loss
 
 def dense_i_loss_graph(target_coords,target_i,pred_logits) :
-    print ("blah againl1308")
-    print (target_coords)
-    print (target_i)
-    print (pred_logits)
+    # print ("blah againl1308")
+    # print (target_coords)
+    # print (target_i)
+    # print (pred_logits)
     filtered_inds=tf.where(target_i>0)#wheer target class is not background
+    print ("hello")
+    print (filtered_inds)
     filtered_i=tf.gather_nd(target_i,filtered_inds)
+    print (filtered_i)
     filtered_coords=tf.gather_nd(target_coords,filtered_inds)
-
+    print (filtered_coords)
+    print ("end")
     pred_logits=tf.gather_nd(pred_logits,filtered_coords)
 
     loss = tf.nn.sparse_softmax_cross_entropy_with_logits(
