@@ -96,7 +96,7 @@ class DenseCocoDataset(utils.Dataset):
         super().__init__()
         self.coco=None 
     def load_coco(self, dataset_dir, subset, year=DEFAULT_DATASET_YEAR, class_ids=None,
-                  class_map=None, save_coco=False, auto_download=False):
+                  class_map=None, save_coco=True, auto_download=False):
         """Load a subset of the COCO dataset.
         dataset_dir: The root directory of the COCO dataset.
         subset: What to load (train, val, minival, valminusminival)
@@ -514,7 +514,7 @@ if __name__ == '__main__':
         # Validation dataset
         dataset_val = DenseCocoDataset()
         val_type = "val" if args.year in '2017' else "minival"
-        dataset_val.load_coco(args.dataset, val_type, year=args.year, auto_download=args.download)
+        dataset_val.load_coco(args.dataset, val_type, year=args.year, auto_download=args.download,save_coco=True)
         dataset_val.prepare()
 
         # Image Augmentation
