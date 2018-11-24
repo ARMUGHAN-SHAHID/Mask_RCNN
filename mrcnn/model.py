@@ -1306,6 +1306,9 @@ def mrcnn_mask_loss_graph(target_masks, target_class_ids, pred_masks):
 
 def dense_i_loss_graph(target_coords,target_i,pred_logits) :
     print ("blah again")
+    print (target_coords)
+    print (target_i)
+    print (pred_logits)
     filtered_inds=tf.where(target_i>0)#wheer target class is not background
     filtered_i=tf.gather_nd(target_i,filtered_inds)
     filtered_coords=tf.gather_nd(target_coords,filtered_inds)
