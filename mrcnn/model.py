@@ -1318,10 +1318,16 @@ def dense_i_loss_graph(target_coords,target_i,pred_logits) :
     return loss
 
 def dense_u_loss_graph(target_coords,target_u,target_i,pred_map_u,pred_logits_i) :
+    print("1")
     pred_i=tf.argmax(pred_logits_i,axis=4) #finding class pred for each roi
+    print("2")
+    
     filtered_inds=tf.where(target_i>0)#where target class is not background
+    print("3")
 
     filtered_i=tf.gather_nd(target_i,filtered_inds)
+    print("4")
+
     filtered_u=tf.gather_nd(target_u,filtered_inds)
     filtered_coords=tf.gather_nd(target_coords,filtered_inds)
     
