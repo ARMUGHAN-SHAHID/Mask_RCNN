@@ -645,8 +645,8 @@ def detection_targets_graph(proposals, gt_class_ids, gt_boxes, gt_masks, config,
 
     i1= tf.cast(tf.greater_equal(roi_gt_dp_x, 0* tf.ones_like(roi_gt_dp_x)), tf.int32)
     i2= tf.cast(tf.greater_equal(roi_gt_dp_y, 0* tf.ones_like(roi_gt_dp_x)), tf.int32)
-    i3= tf.cast(tf.less_equal(roi_gt_dp_x, (M-1)* tf.ones_like(roi_gt_dp_x)), tf.int32)
-    i4= tf.cast(tf.less_equal(roi_gt_dp_y, (M-1)* tf.ones_like(roi_gt_dp_x)), tf.int32)
+    i3= tf.cast(tf.less_equal(roi_gt_dp_x, tf.cast((M-1),tf.int32)* tf.ones_like(roi_gt_dp_x)), tf.int32)
+    i4= tf.cast(tf.less_equal(roi_gt_dp_y, tf.cast((M-1),tf.int32)* tf.ones_like(roi_gt_dp_x)), tf.int32)
 
     i1=tf.multiply(i1,i2)
     i1=tf.multiply(i1,i3)
