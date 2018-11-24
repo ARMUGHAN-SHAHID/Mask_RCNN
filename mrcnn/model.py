@@ -2342,7 +2342,7 @@ class MaskRCNN():
                       input_rpn_match, input_rpn_bbox, input_gt_class_ids, input_gt_boxes, input_gt_masks,
                       ]
             if not config.USE_RPN_ROIS:
-            #     inputs.append(input_rois)
+                inputs.append(input_rois)
             # outputs = [rpn_class_logits, rpn_class, rpn_bbox,
             #            mrcnn_class_logits, mrcnn_class, mrcnn_bbox, mrcnn_mask,
             #            rpn_rois, output_rois,
