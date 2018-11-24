@@ -238,11 +238,11 @@ class DenseCocoDataset(utils.Dataset):
         instance_masks = []
         class_ids = []
 
-        dense_x=[]
-        dense_y=[]
-        dense_i=[]
-        dense_u=[]
-        dense_v=[]
+        # dense_x=[]
+        # dense_y=[]
+        # dense_i=[]
+        # dense_u=[]
+        # dense_v=[]
 
         annotations = self.image_info[image_id]["annotations"]
         # Build mask of shape [height, width, instance_count] and list
@@ -266,11 +266,11 @@ class DenseCocoDataset(utils.Dataset):
                     if m.shape[0] != image_info["height"] or m.shape[1] != image_info["width"]:
                         m = np.ones([image_info["height"], image_info["width"]], dtype=bool)
                 instance_masks.append(m)
-                dense_x.append(annotation['dp_x'])
-                dense_y.append(annotation['dp_y'])
-                dense_u.append(annotation['dp_U'])
-                dense_v.append(annotation['dp_V'])
-                dense_i.append(annotation['dp_I'])
+                # dense_x.append(annotation['dp_x'])
+                # dense_y.append(annotation['dp_y'])
+                # dense_u.append(annotation['dp_U'])
+                # dense_v.append(annotation['dp_V'])
+                # dense_i.append(annotation['dp_I'])
 
                 class_ids.append(class_id)
 
@@ -278,7 +278,9 @@ class DenseCocoDataset(utils.Dataset):
         if class_ids:
             mask = np.stack(instance_masks, axis=2).astype(np.bool)
             class_ids = np.array(class_ids, dtype=np.int32)
-            return mask, class_ids,dense_x,dense_y,dense_u,dense_v,dense_i #changed
+            # return mask, class_ids,dense_x,dense_y,dense_u,dense_v,dense_i #changed
+            return mask, class_ids
+
         else:
             # Call super class to return an empty mask
             n=np.zeros(0)

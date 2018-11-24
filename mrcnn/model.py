@@ -1442,7 +1442,9 @@ def load_image_gt(dataset, config, image_id, augment=False, augmentation=None,
     """
     # Load image and mask and densepose x y
     image = dataset.load_image(image_id)
-    mask, class_ids,dp_x,dp_y,dp_u,dp_v,dp_i = dataset.load_mask(image_id)
+    # mask, class_ids,dp_x,dp_y,dp_u,dp_v,dp_i = dataset.load_mask(image_id)
+    mask, class_ids = dataset.load_mask(image_id)
+
     original_shape = image.shape
     image, window, scale, padding, crop = utils.resize_image(
         image,
@@ -1497,25 +1499,25 @@ def load_image_gt(dataset, config, image_id, augment=False, augmentation=None,
     mask = mask[:, :, _idx]
     class_ids = class_ids[_idx]
     num_instances=len(class_ids)
-    densepose_x=np.zeros([num_instances,196],dtype=np.float32)
-    densepose_y=np.zeros([num_instances,196],dtype=np.float32)
-    densepose_u=np.zeros([num_instances,196],dtype=np.float32)
-    densepose_v=np.zeros([num_instances,196],dtype=np.float32)
-    densepose_i=np.zeros([num_instances,196],dtype=np.int32)
+    # densepose_x=np.zeros([num_instances,196],dtype=np.float32)
+    # densepose_y=np.zeros([num_instances,196],dtype=np.float32)
+    # densepose_u=np.zeros([num_instances,196],dtype=np.float32)
+    # densepose_v=np.zeros([num_instances,196],dtype=np.float32)
+    # densepose_i=np.zeros([num_instances,196],dtype=np.int32)
 
-    for i in np.arange(num_instances):
-        num_points=len(dp_x[i])
-        densepose_x[i,:num_points]=dp_x[i]
-        densepose_y[i,:num_points]=dp_y[i]
-        densepose_u[i,:num_points]=dp_u[i]
-        densepose_v[i,:num_points]=dp_v[i]
-        densepose_i[i,:num_points]=dp_i[i]
+    # for i in np.arange(num_instances):
+    #     num_points=len(dp_x[i])
+    #     densepose_x[i,:num_points]=dp_x[i]
+    #     densepose_y[i,:num_points]=dp_y[i]
+    #     densepose_u[i,:num_points]=dp_u[i]
+    #     densepose_v[i,:num_points]=dp_v[i]
+    #     densepose_i[i,:num_points]=dp_i[i]
 
-    densepose_x=densepose_x[_idx,:]
-    densepose_y=densepose_y[_idx,:]
-    densepose_u=densepose_u[_idx,:]
-    densepose_v=densepose_v[_idx,:]
-    densepose_i=densepose_i[_idx,:]
+    # densepose_x=densepose_x[_idx,:]
+    # densepose_y=densepose_y[_idx,:]
+    # densepose_u=densepose_u[_idx,:]
+    # densepose_v=densepose_v[_idx,:]
+    # densepose_i=densepose_i[_idx,:]
 
     # Bounding boxes. Note that some boxes might be all zeros
     # if the corresponding mask got cropped out.
@@ -1537,7 +1539,8 @@ def load_image_gt(dataset, config, image_id, augment=False, augmentation=None,
     image_meta = compose_image_meta(image_id, original_shape, image.shape,
                                     window, scale, active_class_ids)
 
-    return image, image_meta, class_ids, bbox, mask,densepose_x,densepose_y,densepose_u,densepose_v,densepose_i#changed
+    # return image, image_meta, class_ids, bbox, mask,densepose_x,densepose_y,densepose_u,densepose_v,densepose_i#changed
+    return image, image_meta, class_ids, bbox, mask#changed
 
 
 def build_detection_targets(rpn_rois, gt_class_ids, gt_boxes, gt_masks, config):
@@ -1952,12 +1955,20 @@ def data_generator(dataset, config, shuffle=True, augment=False, augmentation=No
 
             # If the image source is not to be augmented pass None as augmentation
             if dataset.image_info[image_id]['source'] in no_augmentation_sources:#changed
-                image, image_meta, gt_class_ids, gt_boxes, gt_masks,dp_x,dp_y,dp_u,dp_v,dp_i = \
+                # image, image_meta, gt_class_ids, gt_boxes, gt_masks,dp_x,dp_y,dp_u,dp_v,dp_i = \
+                # load_image_gt(dataset, config, image_id, augment=augment,
+                #               augmentation=None,
+                #               use_mini_mask=config.USE_MINI_MASK)
+                image, image_meta, gt_class_ids, gt_boxes, gt_masks = \
                 load_image_gt(dataset, config, image_id, augment=augment,
                               augmentation=None,
                               use_mini_mask=config.USE_MINI_MASK)
             else:#changed
-                image, image_meta, gt_class_ids, gt_boxes, gt_masks,dp_x,dp_y,dp_u,dp_v,dp_i = \
+                # image, image_meta, gt_class_ids, gt_boxes, gt_masks,dp_x,dp_y,dp_u,dp_v,dp_i = \
+                #     load_image_gt(dataset, config, image_id, augment=augment,
+                #                 augmentation=augmentation,
+                #                 use_mini_mask=config.USE_MINI_MASK)
+                image, image_meta, gt_class_ids, gt_boxes, gt_masks = \
                     load_image_gt(dataset, config, image_id, augment=augment,
                                 augmentation=augmentation,
                                 use_mini_mask=config.USE_MINI_MASK)
@@ -1999,16 +2010,16 @@ def data_generator(dataset, config, shuffle=True, augment=False, augmentation=No
                     (batch_size, gt_masks.shape[0], gt_masks.shape[1],
                      config.MAX_GT_INSTANCES), dtype=gt_masks.dtype)
 
-                batch_dp_x=np.zeros(
-                    (batch_size,config.MAX_GT_INSTANCES,196),dtype=np.float32)
-                batch_dp_y=np.zeros(
-                    (batch_size,config.MAX_GT_INSTANCES,196),dtype=np.float32)#changed
-                batch_dp_i=np.zeros(
-                    (batch_size,config.MAX_GT_INSTANCES,196),dtype=np.int32)
-                batch_dp_u=np.zeros(
-                    (batch_size,config.MAX_GT_INSTANCES,196),dtype=np.float32)
-                batch_dp_v=np.zeros(
-                    (batch_size,config.MAX_GT_INSTANCES,196),dtype=np.float32)
+                # batch_dp_x=np.zeros(
+                #     (batch_size,config.MAX_GT_INSTANCES,196),dtype=np.float32)
+                # batch_dp_y=np.zeros(
+                #     (batch_size,config.MAX_GT_INSTANCES,196),dtype=np.float32)#changed
+                # batch_dp_i=np.zeros(
+                #     (batch_size,config.MAX_GT_INSTANCES,196),dtype=np.int32)
+                # batch_dp_u=np.zeros(
+                #     (batch_size,config.MAX_GT_INSTANCES,196),dtype=np.float32)
+                # batch_dp_v=np.zeros(
+                #     (batch_size,config.MAX_GT_INSTANCES,196),dtype=np.float32)
 
                 if random_rois:
                     batch_rpn_rois = np.zeros(
@@ -2031,11 +2042,11 @@ def data_generator(dataset, config, shuffle=True, augment=False, augmentation=No
                 gt_boxes = gt_boxes[ids]
                 gt_masks = gt_masks[:, :, ids]
                 #subsample dp here
-                dp_x=dp_x[ids]
-                dp_y=dp_y[ids]
-                dp_u=dp_u[ids]
-                dp_v=dp_v[ids]
-                dp_i=dp_i[ids]
+                # dp_x=dp_x[ids]
+                # dp_y=dp_y[ids]
+                # dp_u=dp_u[ids]
+                # dp_v=dp_v[ids]
+                # dp_i=dp_i[ids]
 
 
             # Add to batch
@@ -2047,11 +2058,11 @@ def data_generator(dataset, config, shuffle=True, augment=False, augmentation=No
             batch_gt_boxes[b, :gt_boxes.shape[0]] = gt_boxes
             batch_gt_masks[b, :, :, :gt_masks.shape[-1]] = gt_masks
 
-            batch_dp_x[b,:dp_x.shape[0]]=dp_x
-            batch_dp_y[b,:dp_y.shape[0]]=dp_y
-            batch_dp_u[b,:dp_u.shape[0]]=dp_u
-            batch_dp_v[b,:dp_v.shape[0]]=dp_v
-            batch_dp_i[b,:dp_i.shape[0]]=dp_i
+            # batch_dp_x[b,:dp_x.shape[0]]=dp_x
+            # batch_dp_y[b,:dp_y.shape[0]]=dp_y
+            # batch_dp_u[b,:dp_u.shape[0]]=dp_u
+            # batch_dp_v[b,:dp_v.shape[0]]=dp_v
+            # batch_dp_i[b,:dp_i.shape[0]]=dp_i
 
 
             if random_rois:
