@@ -1110,7 +1110,7 @@ def build_fpn_shared_densepose_branch(rois,feature_maps, image_meta,
         curr=KL.Activation('relu')(curr)
 
     return curr
-    
+
 def build_dense_u_v_i_graph(feature_map,config):
     num_patches=config.BODY_UV_RCNN_NUM_PATCHES
     ks=config.BODY_UV_RCNN_DECONV_KERNEL
@@ -1304,6 +1304,7 @@ def mrcnn_mask_loss_graph(target_masks, target_class_ids, pred_masks):
     return loss
 
 def dense_i_loss_graph(target_coords,target_i,pred_logits) :
+    print ("blah again")
     filtered_inds=tf.where(target_i>0)#wheer target class is not background
     filtered_i=tf.gather_nd(target_i,filtered_inds)
     filtered_coords=tf.gather_nd(target_coords,filtered_inds)
@@ -2275,6 +2276,9 @@ class MaskRCNN():
             mask_loss = KL.Lambda(lambda x: mrcnn_mask_loss_graph(*x), name="mrcnn_mask_loss")(
                 [target_mask, target_class_ids, mrcnn_mask])
             # print ("blah")(target_coords,target_u,target_i,pred_map_u,pred_logits_i)
+            ara=[target_coords, target_u,target_i,u_pred,i_pred]
+            print (len(ara))
+            print("blah1")
             i_loss =KL.Lambda(lambda x: dense_i_loss_graph(*x), name="i_loss")(
                 [target_coords, target_i,i_pred])
             print ("blah")
