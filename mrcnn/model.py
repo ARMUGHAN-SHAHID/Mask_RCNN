@@ -626,8 +626,8 @@ def detection_targets_graph(proposals, gt_class_ids, gt_boxes, gt_masks, config,
     roi_gt_dp_v=tf.gather(gt_dp_v,roi_gt_box_assignment)
     roi_gt_dp_i=tf.gather(gt_dp_i,roi_gt_box_assignment)
 
-    y1_source,x1_source,y2_source,x2_source= tf.split(denorm_boxes_graph(roi_gt_boxes), 4, axis=1)
-    y1, x1, y2, x2 = tf.split(denorm_boxes_graph(positive_rois), 4, axis=1)
+    y1_source,x1_source,y2_source,x2_source= tf.split(denorm_boxes_graph(roi_gt_boxes,im_shape), 4, axis=1)
+    y1, x1, y2, x2 = tf.split(denorm_boxes_graph(positive_rois,im_shape), 4, axis=1)
 
 
     gt_length_x = x2_source - x1_source
@@ -703,9 +703,10 @@ class DetectionTargetLayer(KE.Layer):
     Note: Returned arrays might be zero padded if not enough target ROIs.
     """
 
-    def __init__(self, config, **kwargs):
+    def __init__(self, config,image_shape, **kwargs):
         super(DetectionTargetLayer, self).__init__(**kwargs)
         self.config = config
+        self.image_shape=image_shape
 
     def call(self, inputs):
         proposals = inputs[0]
@@ -718,15 +719,16 @@ class DetectionTargetLayer(KE.Layer):
         dp_u=inputs[6]
         dp_v=inputs[7]
         dp_i=inputs[8]
-        im_shape=inputs[9]
+        # im_shape=inputs[9]
 
         # Slice the batch and run a graph for each slice
         # TODO: Rename target_bbox to target_deltas for clarity
+        # proposals, gt_class_ids, gt_boxes, gt_masks, config,gt_dp_x,gt_dp_y,gt_dp_u,gt_dp_v,gt_dp_i,im_shape,batch_num
         names = ["rois", "target_class_ids", "target_bbox", "target_mask","target_dp_u","target_dp_v","target_dp_i","target_dp_coords"]
         outputs = utils.batch_slice_with_batch_num_included(
-            [proposals, gt_class_ids, gt_boxes, gt_masks,dp_x,dp_y,dp_u,dp_v,dp_i,im_shape],
-            lambda a,b,c,d,e,f,w, x, y, z: detection_targets_graph(
-                a,b,c,d,e,f,w, x, y, z, self.config),
+            [proposals, gt_class_ids, gt_boxes, gt_masks,dp_x,dp_y,dp_u,dp_v,dp_i],
+            lambda a,b,c,d,e,f,g, h, i, j: detection_targets_graph( #j is batch num
+                a,b,c,d, self.config,e,f,g,h,i,self.image_shape,j),
             self.config.IMAGES_PER_GPU, names=names)
         return outputs
 
@@ -2221,10 +2223,11 @@ class MaskRCNN():
             # Subsamples proposals and generates target outputs for training
             # Note that proposal class IDs, gt_boxes, and gt_masks are zero
             # padded. Equally, returned rois and targets are zero padded.
+
             rois, target_class_ids, target_bbox, target_mask,target_u,taret_v,target_i,target_coords =\
-                DetectionTargetLayer(config, name="proposal_targets")([
+                DetectionTargetLayer(config,image_shape=config.IMAGE_SHAPE[:2],name="proposal_targets")([
                     target_rois, input_gt_class_ids, gt_boxes, input_gt_masks,
-                    input_dp_x,input_dp_y,input_dp_u,input_dp_v,input_dp_i, K.shape(input_image)[1:3]])
+                    input_dp_x,input_dp_y,input_dp_u,input_dp_v,input_dp_i])
 
             # Network Heads
             # TODO: verify that this handles zero padded ROIs
