@@ -258,11 +258,15 @@ class DenseCocoDataset(utils.Dataset):
         # Build mask of shape [height, width, instance_count] and list
         # of class IDs that correspond to each channel of the mask.
         for annotation in annotations:
+            print ("ann")
             print (annotation['category_id'])
 
             class_id = self.map_source_class_id(
                 "coco.{}".format(annotation['category_id']))
-            print (class_id)
+            if class_id:
+                print (class_id)
+            else:
+                print ("None")
             if class_id:
                 m = self.annToMask(annotation, image_info["height"],
                                    image_info["width"])
