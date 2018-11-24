@@ -740,7 +740,7 @@ class DetectionTargetLayer(KE.Layer):
         #         a,b,c,d, self.config,e,f,g,h,i,self.image_shape,j),
         #     self.config.IMAGES_PER_GPU, names=names)
         outputs = utils.batch_slice(
-            [proposals, gt_class_ids, gt_boxes, gt_masks,dp_x,dp_y,dp_u,dp_v,dp_i],
+            [proposals, gt_class_ids, gt_boxes, gt_masks],
             lambda a,b,c,d: detection_targets_graph( #j is batch num
                 a,b,c,d, self.config),
             self.config.IMAGES_PER_GPU, names=names)
