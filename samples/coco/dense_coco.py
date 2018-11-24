@@ -252,7 +252,7 @@ class DenseCocoDataset(utils.Dataset):
         # dense_i=[]
         # dense_u=[]
         # dense_v=[]
-        annotations=self.coco.loadAnns(coco.getAnnIds(
+        annotations=self.coco.loadAnns(self.coco.getAnnIds(
                     imgIds=[image_id],iscrowd=None))
         # annotations = self.image_info[image_id]["annotations"]
         # Build mask of shape [height, width, instance_count] and list
