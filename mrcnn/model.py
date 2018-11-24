@@ -2273,6 +2273,7 @@ class MaskRCNN():
                 [target_bbox, target_class_ids, mrcnn_bbox])
             mask_loss = KL.Lambda(lambda x: mrcnn_mask_loss_graph(*x), name="mrcnn_mask_loss")(
                 [target_mask, target_class_ids, mrcnn_mask])
+            print ("blah")
             u_loss =KL.Lambda(lambda x: dense_u_loss_graph(*x), name="u_loss")(
                 [target_coords, target_u,target_i,u_pred,i_pred])
             v_loss =KL.Lambda(lambda x: dense_v_loss_graph(*x), name="v_loss")(
