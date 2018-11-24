@@ -2252,21 +2252,12 @@ class MaskRCNN():
             # Network Heads
             # TODO: verify that this handles zero padded ROIs
             mrcnn_class_logits, mrcnn_class, mrcnn_bbox =\
-                fpn_classifier_graph(rois, mrcnn_feature_maps, input_image_meta,
-                                     config.POOL_SIZE, config.NUM_CLASSES,
-                                     train_bn=config.TRAIN_BN,
-                                     fc_layers_size=config.FPN_CLASSIF_FC_LAYERS_SIZE)
+                fpn_classifier_graph(rois, mrcnn_feature_maps, input_image_meta,config.POOL_SIZE, config.NUM_CLASSES,train_bn=config.TRAIN_BN,
+                    fc_layers_size=config.FPN_CLASSIF_FC_LAYERS_SIZE)
 
-            mrcnn_mask = build_fpn_mask_graph(rois, mrcnn_feature_maps,
-                                              input_image_meta,
-                                              config.MASK_POOL_SIZE,
-                                              config.NUM_CLASSES,
-                                              train_bn=config.TRAIN_BN)
-            feature_map_dense=build_fpn_shared_densepose_branch(rois, mrcnn_feature_maps,
-                                              input_image_meta,
-                                              config.BODY_UV_RCNN_POOL_SIZE,
-                                              config,
-                                              train_bn=config.TRAIN_BN)
+            mrcnn_mask = build_fpn_mask_graph(rois, mrcnn_feature_maps,input_image_meta,config.MASK_POOL_SIZE,config.NUM_CLASSES,
+                train_bn=config.TRAIN_BN)
+            feature_map_dense=build_fpn_shared_densepose_branch(rois, mrcnn_feature_maps,input_image_meta,config.BODY_UV_RCNN_POOL_SIZE,config,train_bn=config.TRAIN_BN)
             # print (feature_map_dense)
             # print ("hello")
             u_pred,v_pred,i_pred=build_dense_u_v_i_graph(feature_map_dense,config)
@@ -2285,8 +2276,8 @@ class MaskRCNN():
                 [target_bbox, target_class_ids, mrcnn_bbox])
             mask_loss = KL.Lambda(lambda x: mrcnn_mask_loss_graph(*x), name="mrcnn_mask_loss")(
                 [target_mask, target_class_ids, mrcnn_mask])
-           print ("calling u loss")
-           u_loss =KL.Lambda(lambda x: dense_u_loss_graph(*x), name="u_loss")(
+            print ("calling u loss")
+            u_loss =KL.Lambda(lambda x: dense_u_loss_graph(*x), name="u_loss")(
                 [target_coords, target_u,target_i,u_pred,i_pred])
             v_loss =KL.Lambda(lambda x: dense_v_loss_graph(*x), name="v_loss")(
                 [target_coords, target_v,target_i,v_pred,i_pred])
