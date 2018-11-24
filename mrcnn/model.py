@@ -1304,8 +1304,24 @@ def mrcnn_mask_loss_graph(target_masks, target_class_ids, pred_masks):
     loss = K.mean(loss)
     return loss
 
-def dense_i_loss_graph(target_coords,target_i,pred_logits) :
-    print ("blah again")
+# def dense_i_loss_graph(target_coords,target_i,pred_logits) :
+#     print ("blah again")
+#     filtered_inds=tf.where(target_i>0)#wheer target class is not background
+#     filtered_i=tf.gather_nd(target_i,filtered_inds)
+#     filtered_coords=tf.gather_nd(target_coords,filtered_inds)
+
+#     pred_logits=tf.gather_nd(pred_logits,filtered_coords)
+
+#     loss = tf.nn.sparse_softmax_cross_entropy_with_logits(
+#         labels=filtered_i, logits=pred_logits)
+
+#     # Computer loss mean. Use only predictions that contribute
+#     # to the loss to get a correct mean.
+#     loss = tf.reduce_mean(loss)
+#     return loss
+def dense_i_loss_graph(x) :
+
+    print ("blah again",len(x))
     filtered_inds=tf.where(target_i>0)#wheer target class is not background
     filtered_i=tf.gather_nd(target_i,filtered_inds)
     filtered_coords=tf.gather_nd(target_coords,filtered_inds)
@@ -2286,9 +2302,12 @@ class MaskRCNN():
             # ara=[target_coords, target_u,target_i,u_pred,i_pred]
             # print (ara)
             # ar=[1,2]
-            # print("blah")
-            i_loss =KL.Lambda(lambda x: dense_i_loss_graph(*x), name="i_loss")(
-                [target_coords, target_i,i_pred,i_pred])
+            # # print("blah")
+            # i_loss =KL.Lambda(lambda x: dense_i_loss_graph(*x), name="i_loss")(
+            #     [target_coords, target_i,i_pred])
+
+            i_loss =KL.Lambda(lambda x: dense_i_loss_graph(x), name="i_loss")(
+                [target_coords, target_i,i_pred])
             print ("blah2")
             # u_loss =KL.Lambda(lambda x: dense_u_loss_graph(*x), name="u_loss")(
             #     [target_coords, target_u,target_i,u_pred,i_pred])
