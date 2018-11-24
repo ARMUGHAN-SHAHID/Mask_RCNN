@@ -678,7 +678,7 @@ def detection_targets_graph(proposals, gt_class_ids, gt_boxes, gt_masks, config)
     # roi_gt_dp_rind=tf.reshape(roi_gt_dp_rind,(-1,1))
     # roi_gt_dp_rind=tf.tile(roi_gt_dp_rind,(1,196))
 
-    roi_gt_batch_ind=tf.ones_like(roi_gt_dp_rind)*batch_num
+    # roi_gt_batch_ind=tf.ones_like(roi_gt_dp_rind)*batch_num
 
     # coords=tf.cast(tf.stack([roi_gt_batch_ind,roi_gt_dp_rind,roi_gt_dp_y,roi_gt_dp_x],axis=2),tf.int32)
     # return rois, roi_gt_class_ids, deltas, masks,roi_gt_dp_u,roi_gt_dp_v,roi_gt_dp_i,coords
