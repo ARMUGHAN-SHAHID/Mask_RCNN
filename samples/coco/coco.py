@@ -109,7 +109,7 @@ class CocoDataset(utils.Dataset):
             self.auto_download(dataset_dir, subset, year)
 
         # coco = COCO("{}/annotations/instances_{}{}.json".format(dataset_dir, subset, year))
-        densepose_coco_2014_train
+        # densepose_coco_2014_train
         coco = COCO("{}/densepose_coco_{}_{}.json".format(dataset_dir,year,subset))
         if subset == "minival" or subset == "valminusminival":
             subset = "val"
