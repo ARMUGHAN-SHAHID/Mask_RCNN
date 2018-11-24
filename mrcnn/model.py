@@ -2065,9 +2065,11 @@ def data_generator(dataset, config, shuffle=True, augment=False, augmentation=No
 
             # Batch full?
             if b >= batch_size:
+                # inputs = [batch_images, batch_image_meta, batch_rpn_match, batch_rpn_bbox,
+                #           batch_gt_class_ids, batch_gt_boxes, batch_gt_masks,
+                #           batch_dp_x,batch_dp_y,batch_dp_u,batch_dp_v,batch_dp_i]
                 inputs = [batch_images, batch_image_meta, batch_rpn_match, batch_rpn_bbox,
-                          batch_gt_class_ids, batch_gt_boxes, batch_gt_masks,
-                          batch_dp_x,batch_dp_y,batch_dp_u,batch_dp_v,batch_dp_i]
+                          batch_gt_class_ids, batch_gt_boxes, batch_gt_masks]
                 outputs = []
 
                 if random_rois:
