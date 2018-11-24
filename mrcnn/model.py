@@ -751,7 +751,7 @@ class DetectionTargetLayer(KE.Layer):
         ]
 
     def compute_mask(self, inputs, mask=None):
-        return [None, None, None, None]
+        return [None, None, None, None,None,None,None,None]
 
 
 ############################################################
@@ -2307,7 +2307,7 @@ class MaskRCNN():
             #     [target_coords, target_i,i_pred])
 
             i_loss =KL.Lambda(lambda x: dense_i_loss_graph(x), name="i_loss")(
-                [u_pred])
+                [u_pred,target_u])
             print ("blah2")
             # u_loss =KL.Lambda(lambda x: dense_u_loss_graph(*x), name="u_loss")(
             #     [target_coords, target_u,target_i,u_pred,i_pred])
