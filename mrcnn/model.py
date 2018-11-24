@@ -2259,7 +2259,8 @@ class MaskRCNN():
                                               config.BODY_UV_RCNN_POOL_SIZE,
                                               config,
                                               train_bn=config.TRAIN_BN)
-
+            print (feature_map_dense)
+            print ("hello")
             u_pred,v_pred,i_pred=build_dense_u_v_i_graph(feature_map_dense,config)
 
             # TODO: clean up (use tf.identify if necessary)
@@ -2277,6 +2278,8 @@ class MaskRCNN():
             mask_loss = KL.Lambda(lambda x: mrcnn_mask_loss_graph(*x), name="mrcnn_mask_loss")(
                 [target_mask, target_class_ids, mrcnn_mask])
             # print ("blah")(target_coords,target_u,target_i,pred_map_u,pred_logits_i)
+            ara2=[input_rpn_bbox, input_rpn_match, rpn_bbox]
+            print (ara2)
             ara=[target_coords, target_u,target_i,u_pred,i_pred]
             print (ara)
             print("blah")
