@@ -1348,7 +1348,7 @@ def dense_u_loss_graph(target_coords, target_u, target_i, pred_map_u, pred_logit
 
     pred_u=tf.gather_nd(pred_map_u,filtered_coords)
     loss=smooth_l1_loss(y_true=filtered_u, y_pred=pred_u)
-    loss=loss*tf.cast(bool_mask_for_correct_pred,tf.int32)
+    loss=loss*tf.cast(bool_mask_for_correct_pred,tf.float32)
 
     # Computer loss mean. Use only predictions that contribute
     # to the loss to get a correct mean.
@@ -1368,7 +1368,7 @@ def dense_v_loss_graph(target_coords,target_v,target_i,pred_map_v,pred_logits_i)
 
     pred_v=tf.gather_nd(pred_map_v,filtered_coords)
     loss=smooth_l1_loss(y_true=filtered_v, y_pred=pred_v)
-    loss=loss*tf.cast(bool_mask_for_correct_pred,tf.int32)
+    loss=loss*tf.cast(bool_mask_for_correct_pred,tf.float32)
 
     # Computer loss mean. Use only predictions that contribute
     # to the loss to get a correct mean.
