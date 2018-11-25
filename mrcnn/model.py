@@ -1336,31 +1336,37 @@ def dense_i_loss_graph(target_coords,target_i,pred_logits) :
     # print (target_i)
     # print (pred_logits)
     # print ("in finished")
-    filtered_inds=tf.where(target_i>0)#wheer target class is not background
-    filtered_inds=tf.Print(filtered_inds,[filtered_inds],"\nPrinting filtered inds",summarize=20)
-    # print ("hello")
-    # print (filtered_inds)
-    filtered_i=tf.gather_nd(target_i,filtered_inds)
-    filtered_i=tf.Print(filtered_i,[filtered_i],"\nPrinting filtered i",summarize=20)
-    # filtered_i=tf.Print(filtered_)
-    # print (filtered_i)
-    filtered_coords=tf.gather_nd(target_coords,filtered_inds)
-    filtered_coords=tf.Print(filtered_coords,[filtered_coords],"\nPriniting coords in dense i",summarize=20)
-    # print (filtered_coords)
-    # print ("end")
-    pred_logits=tf.gather_nd(pred_logits,filtered_coords)
-    pred_logits=tf.Print(pred_logits,[pred_logits],"\nPrinting pred logits",summarize=20)
-    # print ("pred logits tensor info")
-    # print (pred_logits)
+    def i_loss(target_coords,target_i,pred_logits):
+        filtered_inds=tf.where(target_i>0)#wheer target class is not background
+        filtered_inds=tf.Print(filtered_inds,[filtered_inds],"\nPrinting filtered inds",summarize=20)
+        # print ("hello")
+        # print (filtered_inds)
+        filtered_i=tf.gather_nd(target_i,filtered_inds)
+        filtered_i=tf.Print(filtered_i,[filtered_i],"\nPrinting filtered i",summarize=20)
+        # filtered_i=tf.Print(filtered_)
+        # print (filtered_i)
+        filtered_coords=tf.gather_nd(target_coords,filtered_inds)
+        filtered_coords=tf.Print(filtered_coords,[filtered_coords],"\nPriniting coords in dense i",summarize=20)
+        # print (filtered_coords)
+        # print ("end")
+        pred_logits=tf.gather_nd(pred_logits,filtered_coords)
+        pred_logits=tf.Print(pred_logits,[pred_logits],"\nPrinting pred logits",summarize=20)
+        # print ("pred logits tensor info")
+        # print (pred_logits)
 
-    loss = tf.nn.sparse_softmax_cross_entropy_with_logits(
-        labels=filtered_i, logits=pred_logits)
-    loss=tf.Print(loss,[loss],"\nPrinting dense i loss tensor",summarize=20)
+        loss = tf.nn.sparse_softmax_cross_entropy_with_logits(
+            labels=filtered_i, logits=pred_logits)
+        loss=tf.Print(loss,[loss],"\nPrinting dense i loss tensor",summarize=20)
 
-    # Computer loss mean. Use only predictions that contribute
-    # to the loss to get a correct mean.
-    loss = tf.reduce_mean(loss)
-    loss=tf.Print(loss,[loss],"\nPrinting dense i loss after mean\n",summarize=20)
+        # Computer loss mean. Use only predictions that contribute
+        # to the loss to get a correct mean.
+        loss = tf.reduce_mean(loss)
+        loss=tf.Print(loss,[loss],"\nPrinting dense i loss after mean\n",summarize=20)
+
+    loss=K.switch(tf.size(target_i) > 0,
+                    i_loss(target_coords,target_i,pred_logits),
+                    tf.constant(0.0))
+    loss=tf.Print(loss,[loss],"\nPrinting final  dense i loss after mean\n",summarize=20)
 
     return loss
 
