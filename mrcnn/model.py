@@ -1363,6 +1363,8 @@ def dense_i_loss_graph(target_coords,target_i,pred_logits) :
         loss = tf.reduce_mean(loss)
         loss=tf.Print(loss,[loss],"\nPrinting dense i loss after mean\n",summarize=20)
 
+        return loss
+        
     loss=K.switch(tf.size(target_i) > 0,
                     i_loss(target_coords,target_i,pred_logits),
                     tf.constant(0.0))
