@@ -57,6 +57,9 @@ class CocoConfig(Config):
     # Number of classes (including background)
     NUM_CLASSES = 1 + 1  #DPCOCO has 1 class
 
+    IMAGE_MIN_DIM = 400
+    IMAGE_MAX_DIM = 800
+
 
 ############################################################
 #  Dataset
@@ -104,6 +107,7 @@ class DenseCocoDataset(utils.Dataset):
             cname=coco.loadCats(i)[0]["name"]
             print ("Adding class = {} with id = {}".format(cname,i))
             self.add_class("coco", i, cname)
+
 
         # Add images
         for i in image_ids:
