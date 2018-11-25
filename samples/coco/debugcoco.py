@@ -130,7 +130,7 @@ class DenseCocoDataset(utils.Dataset):
         if return_coco:
             return coco
 
-    def get_annotations(annotations):
+    def get_annotations(self,annotations):
         annotation_list=[]
         for annotation in annotations:
             if 'ignore' in annotation and annotation['ignore']==1:
