@@ -1444,7 +1444,7 @@ def load_image_gt(dataset, config, image_id, augment=False, augmentation=None,
     image = dataset.load_image(image_id)
     # mask, class_ids,dp_x,dp_y,dp_u,dp_v,dp_i = dataset.load_mask(image_id)
     mask, class_ids = dataset.load_mask(image_id)
-
+    mask, class_ids,dp_x,dp_y,dp_u,dp_v,dp_i =load_mask_and_dense_points(image_id)
     original_shape = image.shape
     image, window, scale, padding, crop = utils.resize_image(
         image,

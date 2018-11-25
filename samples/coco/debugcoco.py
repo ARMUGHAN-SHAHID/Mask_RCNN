@@ -439,12 +439,12 @@ if __name__ == '__main__':
         #     dataset_train.load_coco(args.dataset, "valminusminival", year=args.year, auto_download=args.download)
         dataset_train.prepare()
 
-        print ("loading gts fro the frist ten images\n")
-        for ijk in range(len(dataset_train.image_info)//2):
-            im_info=dataset_train.image_info[ijk]
-            im_id=im_info['id']
-            dataset_train.load_image(ijk)
-            dataset_train.load_mask_and_dense_points(ijk)
+        # print ("loading gts fro the frist ten images\n")
+        # for ijk in range(len(dataset_train.image_info)//2):
+        #     im_info=dataset_train.image_info[ijk]
+        #     im_id=im_info['id']
+        #     dataset_train.load_image(ijk)
+        #     dataset_train.load_mask_and_dense_points(ijk)
 
         # Validation dataset
         print ("loading dataset for validation")
@@ -476,14 +476,14 @@ if __name__ == '__main__':
         #             layers='4+',
         #             augmentation=augmentation)
 
-        # Training - Stage 3
-        # Fine tune all layers
-        # print("Fine tune all layers")
-        # model.train(dataset_train, dataset_val,
-        #             learning_rate=config.LEARNING_RATE / 10,
-        #             epochs=160,
-        #             layers='all',
-        #             augmentation=augmentation)
+        Training - Stage 3
+        Fine tune all layers
+        print("Fine tune all layers")
+        model.train(dataset_train, dataset_val,
+                    learning_rate=config.LEARNING_RATE / 10,
+                    epochs=160,
+                    layers='all',
+                    augmentation=augmentation)
 
     elif args.command == "evaluate":
         # Validation dataset
