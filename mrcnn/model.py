@@ -1364,14 +1364,9 @@ def dense_u_loss_graph(target_coords, target_u, target_i, pred_map_u, pred_logit
     pred_logits_i=tf.cast(pred_logits_i,tf.float32)
 
     pred_i=tf.argmax(pred_logits_i,axis=4) #finding class pred for each roi
-    # print("2")
-    
+
     filtered_inds=tf.where(target_i>0)#where target class is not background
-    # print("3")
-
     filtered_i=tf.gather_nd(target_i,filtered_inds)
-    # print("4")
-
     filtered_u=tf.gather_nd(target_u,filtered_inds)
     filtered_coords=tf.gather_nd(target_coords,filtered_inds)
     
@@ -1379,6 +1374,11 @@ def dense_u_loss_graph(target_coords, target_u, target_i, pred_map_u, pred_logit
     bool_mask_for_correct_pred=tf.equal(tf.cast(pred_i,tf.int32),filtered_i)
 
     pred_u=tf.gather_nd(pred_map_u,filtered_coords)
+
+    num_points=tf.shape(pred_u)[0]
+    pred_u_coords=tf.stack([tf.range(num_points),filtered_i],axis=1)#picking u for the respective classes
+    pred_u=tf.gather_nd(pred_u,pred_u_coords)
+
     loss=smooth_l1_loss(y_true=filtered_u, y_pred=pred_u)
     loss=loss*tf.cast(bool_mask_for_correct_pred,tf.float32)
 
@@ -1405,6 +1405,11 @@ def dense_v_loss_graph(target_coords,target_v,target_i,pred_map_v,pred_logits_i)
     bool_mask_for_correct_pred=tf.equal(tf.cast(pred_i,tf.int32),filtered_i)
 
     pred_v=tf.gather_nd(pred_map_v,filtered_coords)
+
+    num_points=tf.shape(pred_v)[0]
+    pred_v_coords=tf.stack([tf.range(num_points),filtered_i],axis=1)#picking u for the respective classes
+    pred_v=tf.gather_nd(pred_v,pred_v_coords)
+
     loss=smooth_l1_loss(y_true=filtered_v, y_pred=pred_v)
     loss=loss*tf.cast(bool_mask_for_correct_pred,tf.float32)
 
