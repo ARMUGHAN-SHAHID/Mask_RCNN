@@ -1336,9 +1336,11 @@ def dense_i_loss_graph(target_coords,target_i,pred_logits) :
     # print (pred_logits)
     # print ("in finished")
     filtered_inds=tf.where(target_i>0)#wheer target class is not background
+    filtered_inds=tf.Print(filtered_inds,[filtered_inds],"Printing filtered inds")
     # print ("hello")
     # print (filtered_inds)
     filtered_i=tf.gather_nd(target_i,filtered_inds)
+    filtered_i=tf.Print(filtered_i,[filtered_i],"Printing filtered i")
     # filtered_i=tf.Print(filtered_)
     # print (filtered_i)
     filtered_coords=tf.gather_nd(target_coords,filtered_inds)
@@ -1346,11 +1348,13 @@ def dense_i_loss_graph(target_coords,target_i,pred_logits) :
     # print (filtered_coords)
     # print ("end")
     pred_logits=tf.gather_nd(pred_logits,filtered_coords)
-    print ("pred logits tensor info")
-    print (pred_logits)
+    pred_logits=tf.Print(pred_logits,[pred_logits]," Printing pred logits")
+    # print ("pred logits tensor info")
+    # print (pred_logits)
 
     loss = tf.nn.sparse_softmax_cross_entropy_with_logits(
         labels=filtered_i, logits=pred_logits)
+    loss=tf.Print(loss,[loss]," Printing dense i loss")
 
     # Computer loss mean. Use only predictions that contribute
     # to the loss to get a correct mean.
@@ -2160,6 +2164,7 @@ class MaskRCNN():
                                     name="input_image_meta")
         if mode == "training":
             # RPN GT
+
             input_rpn_match = KL.Input(
                 shape=[None, 1], name="input_rpn_match", dtype=tf.int32)
             input_rpn_bbox = KL.Input(
