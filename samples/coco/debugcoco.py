@@ -440,9 +440,10 @@ if __name__ == '__main__':
         dataset_train.prepare()
 
         print ("loading gts fro the frist ten images\n")
-        for ijk in range(10):
+        for ijk in range(len(dataset_train.image_info)//2):
             im_info=dataset_train.image_info[ijk]
             im_id=im_info['id']
+            dataset_train.load_image(ijk)
             dataset_train.load_mask_and_dense_points(ijk)
 
         # Validation dataset
