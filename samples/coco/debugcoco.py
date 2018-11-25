@@ -112,7 +112,7 @@ class DenseCocoDataset(utils.Dataset):
             im_path=os.path.join(image_dir, coco.imgs[i]['file_name'])
             if  not os.path.exists(im_path):
                 print ("{}\ninvalid path for image id={}".format(im_path,i))
-                
+
             annotations=self.get_annotations(coco.loadAnns(coco.getAnnIds(
                     imgIds=[i], catIds=class_ids, iscrowd=None)))
 
@@ -430,7 +430,7 @@ if __name__ == '__main__':
         # validation set, as as in the Mask RCNN paper.
         print ("loading dataset for training")
         dataset_train = DenseCocoDataset()
-        dataset_train.load_coco(args.dataset, "train", year=args.year, auto_download=args.download)
+        dataset_train.load_coco(args.dataset, "train", year=args.year, auto_download=False)
         # if args.year in '2014':
         #     dataset_train.load_coco(args.dataset, "valminusminival", year=args.year, auto_download=args.download)
         dataset_train.prepare()
@@ -439,7 +439,7 @@ if __name__ == '__main__':
         print ("loading dataset for validation")
         dataset_val = DenseCocoDataset()
         val_type = "val" if args.year in '2017' else "minival"
-        dataset_val.load_coco(args.dataset, val_type, year=args.year, auto_download=args.download)
+        dataset_val.load_coco(args.dataset, val_type, year=args.year, auto_download=False)
         dataset_val.prepare()
 
         # Image Augmentation
