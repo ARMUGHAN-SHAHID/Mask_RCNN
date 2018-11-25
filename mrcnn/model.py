@@ -1537,8 +1537,8 @@ def load_image_gt(dataset, config, image_id, augment=False, augmentation=None,
     image_meta = compose_image_meta(image_id, original_shape, image.shape,
                                     window, scale, active_class_ids)
 
-    # return image, image_meta, class_ids, bbox, mask,densepose_x,densepose_y,densepose_u,densepose_v,densepose_i#changed
-    return image, image_meta, class_ids, bbox, mask#changed
+    return image, image_meta, class_ids, bbox, mask,densepose_x,densepose_y,densepose_u,densepose_v,densepose_i#changed
+    # return image, image_meta, class_ids, bbox, mask#changed
 
 
 def build_detection_targets(rpn_rois, gt_class_ids, gt_boxes, gt_masks, config):
@@ -1953,23 +1953,23 @@ def data_generator(dataset, config, shuffle=True, augment=False, augmentation=No
 
             # If the image source is not to be augmented pass None as augmentation
             if dataset.image_info[image_id]['source'] in no_augmentation_sources:#changed
-                # image, image_meta, gt_class_ids, gt_boxes, gt_masks,dp_x,dp_y,dp_u,dp_v,dp_i = \
-                # load_image_gt(dataset, config, image_id, augment=augment,
-                #               augmentation=None,
-                #               use_mini_mask=config.USE_MINI_MASK)
-                image, image_meta, gt_class_ids, gt_boxes, gt_masks = \
+                image, image_meta, gt_class_ids, gt_boxes, gt_masks,dp_x,dp_y,dp_u,dp_v,dp_i = \
                 load_image_gt(dataset, config, image_id, augment=augment,
                               augmentation=None,
                               use_mini_mask=config.USE_MINI_MASK)
+                # image, image_meta, gt_class_ids, gt_boxes, gt_masks = \
+                # load_image_gt(dataset, config, image_id, augment=augment,
+                #               augmentation=None,
+                #               use_mini_mask=config.USE_MINI_MASK)
             else:#changed
-                # image, image_meta, gt_class_ids, gt_boxes, gt_masks,dp_x,dp_y,dp_u,dp_v,dp_i = \
-                #     load_image_gt(dataset, config, image_id, augment=augment,
-                #                 augmentation=augmentation,
-                #                 use_mini_mask=config.USE_MINI_MASK)
-                image, image_meta, gt_class_ids, gt_boxes, gt_masks = \
+                image, image_meta, gt_class_ids, gt_boxes, gt_masks,dp_x,dp_y,dp_u,dp_v,dp_i = \
                     load_image_gt(dataset, config, image_id, augment=augment,
                                 augmentation=augmentation,
                                 use_mini_mask=config.USE_MINI_MASK)
+                # image, image_meta, gt_class_ids, gt_boxes, gt_masks = \
+                #     load_image_gt(dataset, config, image_id, augment=augment,
+                #                 augmentation=augmentation,
+                #                 use_mini_mask=config.USE_MINI_MASK)
 
             # Skip images that have no instances. This can happen in cases
             # where we train on a subset of classes and the image doesn't
@@ -2008,16 +2008,16 @@ def data_generator(dataset, config, shuffle=True, augment=False, augmentation=No
                     (batch_size, gt_masks.shape[0], gt_masks.shape[1],
                      config.MAX_GT_INSTANCES), dtype=gt_masks.dtype)
 
-                # batch_dp_x=np.zeros(
-                #     (batch_size,config.MAX_GT_INSTANCES,196),dtype=np.float32)
-                # batch_dp_y=np.zeros(
-                #     (batch_size,config.MAX_GT_INSTANCES,196),dtype=np.float32)#changed
-                # batch_dp_i=np.zeros(
-                #     (batch_size,config.MAX_GT_INSTANCES,196),dtype=np.int32)
-                # batch_dp_u=np.zeros(
-                #     (batch_size,config.MAX_GT_INSTANCES,196),dtype=np.float32)
-                # batch_dp_v=np.zeros(
-                #     (batch_size,config.MAX_GT_INSTANCES,196),dtype=np.float32)
+                batch_dp_x=np.zeros(
+                    (batch_size,config.MAX_GT_INSTANCES,196),dtype=np.float32)
+                batch_dp_y=np.zeros(
+                    (batch_size,config.MAX_GT_INSTANCES,196),dtype=np.float32)#changed
+                batch_dp_i=np.zeros(
+                    (batch_size,config.MAX_GT_INSTANCES,196),dtype=np.int32)
+                batch_dp_u=np.zeros(
+                    (batch_size,config.MAX_GT_INSTANCES,196),dtype=np.float32)
+                batch_dp_v=np.zeros(
+                    (batch_size,config.MAX_GT_INSTANCES,196),dtype=np.float32)
 
                 if random_rois:
                     batch_rpn_rois = np.zeros(
@@ -2040,11 +2040,11 @@ def data_generator(dataset, config, shuffle=True, augment=False, augmentation=No
                 gt_boxes = gt_boxes[ids]
                 gt_masks = gt_masks[:, :, ids]
                 #subsample dp here
-                # dp_x=dp_x[ids]
-                # dp_y=dp_y[ids]
-                # dp_u=dp_u[ids]
-                # dp_v=dp_v[ids]
-                # dp_i=dp_i[ids]
+                dp_x=dp_x[ids]
+                dp_y=dp_y[ids]
+                dp_u=dp_u[ids]
+                dp_v=dp_v[ids]
+                dp_i=dp_i[ids]
 
 
             # Add to batch
@@ -2056,11 +2056,11 @@ def data_generator(dataset, config, shuffle=True, augment=False, augmentation=No
             batch_gt_boxes[b, :gt_boxes.shape[0]] = gt_boxes
             batch_gt_masks[b, :, :, :gt_masks.shape[-1]] = gt_masks
 
-            # batch_dp_x[b,:dp_x.shape[0]]=dp_x
-            # batch_dp_y[b,:dp_y.shape[0]]=dp_y
-            # batch_dp_u[b,:dp_u.shape[0]]=dp_u
-            # batch_dp_v[b,:dp_v.shape[0]]=dp_v
-            # batch_dp_i[b,:dp_i.shape[0]]=dp_i
+            batch_dp_x[b,:dp_x.shape[0]]=dp_x
+            batch_dp_y[b,:dp_y.shape[0]]=dp_y
+            batch_dp_u[b,:dp_u.shape[0]]=dp_u
+            batch_dp_v[b,:dp_v.shape[0]]=dp_v
+            batch_dp_i[b,:dp_i.shape[0]]=dp_i
 
 
             if random_rois:
@@ -2074,11 +2074,11 @@ def data_generator(dataset, config, shuffle=True, augment=False, augmentation=No
 
             # Batch full?
             if b >= batch_size:
-                # inputs = [batch_images, batch_image_meta, batch_rpn_match, batch_rpn_bbox,
-                #           batch_gt_class_ids, batch_gt_boxes, batch_gt_masks,
-                #           batch_dp_x,batch_dp_y,batch_dp_u,batch_dp_v,batch_dp_i]
                 inputs = [batch_images, batch_image_meta, batch_rpn_match, batch_rpn_bbox,
-                          batch_gt_class_ids, batch_gt_boxes, batch_gt_masks]
+                          batch_gt_class_ids, batch_gt_boxes, batch_gt_masks,
+                          batch_dp_x,batch_dp_y,batch_dp_u,batch_dp_v,batch_dp_i]
+                # inputs = [batch_images, batch_image_meta, batch_rpn_match, batch_rpn_bbox,
+                #           batch_gt_class_ids, batch_gt_boxes, batch_gt_masks]
                 outputs = []
 
                 if random_rois:
@@ -2180,16 +2180,16 @@ class MaskRCNN():
                     name="input_gt_masks", dtype=bool)
 
 
-            # input_dp_x=KL.Input(
-            #     shape=[None, 196], name="input_dp_x", dtype=tf.float32)
-            # input_dp_y=KL.Input(
-            #     shape=[None, 196], name="input_dp_y", dtype=tf.float32)
-            # input_dp_u=KL.Input(
-            #     shape=[None, 196], name="input_dp_u", dtype=tf.float32)
-            # input_dp_v=KL.Input(
-            #     shape=[None, 196], name="input_dp_v", dtype=tf.float32)
-            # input_dp_i=KL.Input(
-            #     shape=[None, 196], name="input_dp_i", dtype=tf.int32)
+            input_dp_x=KL.Input(
+                shape=[None, 196], name="input_dp_x", dtype=tf.float32)
+            input_dp_y=KL.Input(
+                shape=[None, 196], name="input_dp_y", dtype=tf.float32)
+            input_dp_u=KL.Input(
+                shape=[None, 196], name="input_dp_u", dtype=tf.float32)
+            input_dp_v=KL.Input(
+                shape=[None, 196], name="input_dp_v", dtype=tf.float32)
+            input_dp_i=KL.Input(
+                shape=[None, 196], name="input_dp_i", dtype=tf.int32)
 
         elif mode == "inference":
             # Anchors in normalized coordinates
@@ -2344,12 +2344,12 @@ class MaskRCNN():
             
 
             # Model
-            # inputs = [input_image, input_image_meta,
-            #           input_rpn_match, input_rpn_bbox, input_gt_class_ids, input_gt_boxes, input_gt_masks,
-            #           input_dp_x,input_dp_y,input_dp_u,input_dp_v,input_dp_i]
             inputs = [input_image, input_image_meta,
                       input_rpn_match, input_rpn_bbox, input_gt_class_ids, input_gt_boxes, input_gt_masks,
-                      ]
+                      input_dp_x,input_dp_y,input_dp_u,input_dp_v,input_dp_i]
+            # inputs = [input_image, input_image_meta,
+            #           input_rpn_match, input_rpn_bbox, input_gt_class_ids, input_gt_boxes, input_gt_masks,
+            #           ]
             if not config.USE_RPN_ROIS:
                 inputs.append(input_rois)
             # outputs = [rpn_class_logits, rpn_class, rpn_bbox,
