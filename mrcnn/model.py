@@ -1328,6 +1328,7 @@ def mrcnn_mask_loss_graph(target_masks, target_class_ids, pred_masks):
 def dense_i_loss_graph(target_coords,target_i,pred_logits) :
     target_coords=tf.cast(target_coords,tf.int32)
     target_i=tf.cast(target_i,tf.int32)
+    target_i=tf.Print(target_i,[target_i],"\n Printing target i received by func")
     pred_logits=tf.cast(pred_logits,tf.float32)
 
     # print ("blah againl1308")
@@ -1354,11 +1355,13 @@ def dense_i_loss_graph(target_coords,target_i,pred_logits) :
 
     loss = tf.nn.sparse_softmax_cross_entropy_with_logits(
         labels=filtered_i, logits=pred_logits)
-    loss=tf.Print(loss,[loss],"\nPrinting dense i loss\n")
+    loss=tf.Print(loss,[loss],"\nPrinting dense i loss tensor")
 
     # Computer loss mean. Use only predictions that contribute
     # to the loss to get a correct mean.
     loss = tf.reduce_mean(loss)
+    loss=tf.Print(loss,[loss],"\nPrinting dense i loss after mean\n")
+
     return loss
 
 
