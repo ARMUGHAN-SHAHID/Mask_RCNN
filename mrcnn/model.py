@@ -483,8 +483,8 @@ def overlaps_graph(boxes1, boxes2):
     return overlaps
 
 
-# def detection_targets_graph(proposals, gt_class_ids, gt_boxes, gt_masks, config,gt_dp_x,gt_dp_y,gt_dp_u,gt_dp_v,gt_dp_i,im_shape,batch_num):
-def detection_targets_graph(proposals, gt_class_ids, gt_boxes, gt_masks, config):
+def detection_targets_graph(proposals, gt_class_ids, gt_boxes, gt_masks, config,gt_dp_x,gt_dp_y,gt_dp_u,gt_dp_v,gt_dp_i,im_shape,batch_num):
+# def detection_targets_graph(proposals, gt_class_ids, gt_boxes, gt_masks, config):
 
     """Generates detection targets for one image. Subsamples proposals and
     generates target class IDs, bounding box deltas, and masks for each.
@@ -521,11 +521,11 @@ def detection_targets_graph(proposals, gt_class_ids, gt_boxes, gt_masks, config)
                                    name="trim_gt_class_ids")
     gt_masks = tf.gather(gt_masks, tf.where(non_zeros)[:, 0], axis=2,
                          name="trim_gt_masks")
-    # gt_dp_x=tf.gather(gt_dp_x,tf.where(non_zeros)[:,0],axis=0)
-    # gt_dp_y=tf.gather(gt_dp_y,tf.where(non_zeros)[:,0],axis=0)
-    # gt_dp_u=tf.gather(gt_dp_u,tf.where(non_zeros)[:,0],axis=0)
-    # gt_dp_v=tf.gather(gt_dp_v,tf.where(non_zeros)[:,0],axis=0)
-    # gt_dp_i=tf.gather(gt_dp_i,tf.where(non_zeros)[:,0],axis=0)
+    gt_dp_x=tf.gather(gt_dp_x,tf.where(non_zeros)[:,0],axis=0)
+    gt_dp_y=tf.gather(gt_dp_y,tf.where(non_zeros)[:,0],axis=0)
+    gt_dp_u=tf.gather(gt_dp_u,tf.where(non_zeros)[:,0],axis=0)
+    gt_dp_v=tf.gather(gt_dp_v,tf.where(non_zeros)[:,0],axis=0)
+    gt_dp_i=tf.gather(gt_dp_i,tf.where(non_zeros)[:,0],axis=0)
     
     # Handle COCO crowds
     # A crowd box in COCO is a bounding box around several instances. Exclude
@@ -538,11 +538,11 @@ def detection_targets_graph(proposals, gt_class_ids, gt_boxes, gt_masks, config)
     gt_boxes = tf.gather(gt_boxes, non_crowd_ix)
     gt_masks = tf.gather(gt_masks, non_crowd_ix, axis=2)
 
-    # gt_dp_x=tf.gather(gt_dp_x, non_crowd_ix)
-    # gt_dp_y=tf.gather(gt_dp_y, non_crowd_ix)
-    # gt_dp_u=tf.gather(gt_dp_u, non_crowd_ix)
-    # gt_dp_v=tf.gather(gt_dp_v, non_crowd_ix)
-    # gt_dp_i=tf.gather(gt_dp_i, non_crowd_ix)
+    gt_dp_x=tf.gather(gt_dp_x, non_crowd_ix)
+    gt_dp_y=tf.gather(gt_dp_y, non_crowd_ix)
+    gt_dp_u=tf.gather(gt_dp_u, non_crowd_ix)
+    gt_dp_v=tf.gather(gt_dp_v, non_crowd_ix)
+    gt_dp_i=tf.gather(gt_dp_i, non_crowd_ix)
 
 
     # Compute overlaps matrix [proposals, gt_boxes]
@@ -621,40 +621,40 @@ def detection_targets_graph(proposals, gt_class_ids, gt_boxes, gt_masks, config)
     masks = tf.round(masks)
 
     #compute x y mapped from 256*256 roi to the hx and y fro the rois heatmap
-    # M=tf.constant(config.BODY_UV_RCNN_HEATMAP_SIZE,dtype=tf.float32)
-    # roi_gt_dp_x=tf.gather(gt_dp_x,roi_gt_box_assignment)
-    # roi_gt_dp_y=tf.gather(gt_dp_y,roi_gt_box_assignment)
-    # roi_gt_dp_u=tf.gather(gt_dp_u,roi_gt_box_assignment)
-    # roi_gt_dp_v=tf.gather(gt_dp_v,roi_gt_box_assignment)
-    # roi_gt_dp_i=tf.gather(gt_dp_i,roi_gt_box_assignment)
+    M=tf.constant(config.BODY_UV_RCNN_HEATMAP_SIZE,dtype=tf.float32)
+    roi_gt_dp_x=tf.gather(gt_dp_x,roi_gt_box_assignment)
+    roi_gt_dp_y=tf.gather(gt_dp_y,roi_gt_box_assignment)
+    roi_gt_dp_u=tf.gather(gt_dp_u,roi_gt_box_assignment)
+    roi_gt_dp_v=tf.gather(gt_dp_v,roi_gt_box_assignment)
+    roi_gt_dp_i=tf.gather(gt_dp_i,roi_gt_box_assignment)
 
-    # y1_source,x1_source,y2_source,x2_source= tf.split(denorm_boxes_graph(roi_gt_boxes,im_shape), 4, axis=1)
-    # y1, x1, y2, x2 = tf.split(denorm_boxes_graph(positive_rois,im_shape), 4, axis=1)
-
-
-    # gt_length_x = x2_source - x1_source
-    # gt_length_y = y2_source - y1_source
-    # #
-    # roi_ann_size=tf.constant(256.0,dtype=tf.float32)
-    # roi_gt_dp_y = ( (  (roi_gt_dp_y / roi_ann_size) * gt_length_y  )+y1_source - y1 ) *  ( M /  ( y2 - y1 ) )
-    # # roi_gt_dp_y=(roi_gt_dp_y + y1_source - y1 ) *  ( M /  ( y2 - y1 ) )
-
-    # roi_gt_dp_x =  ((  roi_gt_dp_x / roi_ann_size * gt_length_x  ) + x1_source - x1 ) *  ( M /  ( x2 - x1 ) )
-
-    # roi_gt_dp_y=tf.cast(tf.round(roi_gt_dp_y),tf.int32)
-    # roi_gt_dp_x=tf.cast(tf.round(roi_gt_dp_x),tf.int32)
+    y1_source,x1_source,y2_source,x2_source= tf.split(denorm_boxes_graph(roi_gt_boxes,im_shape), 4, axis=1)
+    y1, x1, y2, x2 = tf.split(denorm_boxes_graph(positive_rois,im_shape), 4, axis=1)
 
 
-    # i1= tf.cast(tf.greater_equal(roi_gt_dp_x, 0* tf.ones_like(roi_gt_dp_x)), tf.int32)
-    # i2= tf.cast(tf.greater_equal(roi_gt_dp_y, 0* tf.ones_like(roi_gt_dp_x)), tf.int32)
-    # i3= tf.cast(tf.less_equal(roi_gt_dp_x, tf.cast((M-1),tf.int32)* tf.ones_like(roi_gt_dp_x)), tf.int32)
-    # i4= tf.cast(tf.less_equal(roi_gt_dp_y, tf.cast((M-1),tf.int32)* tf.ones_like(roi_gt_dp_x)), tf.int32)
+    gt_length_x = x2_source - x1_source
+    gt_length_y = y2_source - y1_source
+    #
+    roi_ann_size=tf.constant(256.0,dtype=tf.float32)
+    roi_gt_dp_y = ( (  (roi_gt_dp_y / roi_ann_size) * gt_length_y  )+y1_source - y1 ) *  ( M /  ( y2 - y1 ) )
+    # roi_gt_dp_y=(roi_gt_dp_y + y1_source - y1 ) *  ( M /  ( y2 - y1 ) )
 
-    # i1=tf.multiply(i1,i2)
-    # i1=tf.multiply(i1,i3)
-    # i1=tf.multiply(i1,i4)
+    roi_gt_dp_x =  ((  roi_gt_dp_x / roi_ann_size * gt_length_x  ) + x1_source - x1 ) *  ( M /  ( x2 - x1 ) )
 
-    # roi_gt_dp_i=tf.multiply(roi_gt_dp_i,i1)
+    roi_gt_dp_y=tf.cast(tf.round(roi_gt_dp_y),tf.int32)
+    roi_gt_dp_x=tf.cast(tf.round(roi_gt_dp_x),tf.int32)
+
+
+    i1= tf.cast(tf.greater_equal(roi_gt_dp_x, 0* tf.ones_like(roi_gt_dp_x)), tf.int32)
+    i2= tf.cast(tf.greater_equal(roi_gt_dp_y, 0* tf.ones_like(roi_gt_dp_x)), tf.int32)
+    i3= tf.cast(tf.less_equal(roi_gt_dp_x, tf.cast((M-1),tf.int32)* tf.ones_like(roi_gt_dp_x)), tf.int32)
+    i4= tf.cast(tf.less_equal(roi_gt_dp_y, tf.cast((M-1),tf.int32)* tf.ones_like(roi_gt_dp_x)), tf.int32)
+
+    i1=tf.multiply(i1,i2)
+    i1=tf.multiply(i1,i3)
+    i1=tf.multiply(i1,i4)
+
+    roi_gt_dp_i=tf.multiply(roi_gt_dp_i,i1)
 
 
     # Append negative ROIs and pad bbox deltas and masks that
@@ -667,22 +667,22 @@ def detection_targets_graph(proposals, gt_class_ids, gt_boxes, gt_masks, config)
     roi_gt_class_ids = tf.pad(roi_gt_class_ids, [(0, N + P)])
     deltas = tf.pad(deltas, [(0, N + P), (0, 0)])
     masks = tf.pad(masks, [[0, N + P], (0, 0), (0, 0)])
-    # roi_gt_dp_x=tf.pad(roi_gt_dp_x,[(0,N+P),(0,0)])
-    # roi_gt_dp_y=tf.pad(roi_gt_dp_y,[(0,N+P),(0,0)])
-    # roi_gt_dp_u=tf.pad(roi_gt_dp_u,[(0,N+P),(0,0)])
-    # roi_gt_dp_v=tf.pad(roi_gt_dp_v,[(0,N+P),(0,0)])
-    # roi_gt_dp_i=tf.pad(roi_gt_dp_i,[(0,N+P),(0,0)])
+    roi_gt_dp_x=tf.pad(roi_gt_dp_x,[(0,N+P),(0,0)])
+    roi_gt_dp_y=tf.pad(roi_gt_dp_y,[(0,N+P),(0,0)])
+    roi_gt_dp_u=tf.pad(roi_gt_dp_u,[(0,N+P),(0,0)])
+    roi_gt_dp_v=tf.pad(roi_gt_dp_v,[(0,N+P),(0,0)])
+    roi_gt_dp_i=tf.pad(roi_gt_dp_i,[(0,N+P),(0,0)])
 
-    # #for forming coordinates
-    # roi_gt_dp_rind=tf.range(config.TRAIN_ROIS_PER_IMAGE) 
-    # roi_gt_dp_rind=tf.reshape(roi_gt_dp_rind,(-1,1))
-    # roi_gt_dp_rind=tf.tile(roi_gt_dp_rind,(1,196))
+    #for forming coordinates
+    roi_gt_dp_rind=tf.range(config.TRAIN_ROIS_PER_IMAGE) 
+    roi_gt_dp_rind=tf.reshape(roi_gt_dp_rind,(-1,1))
+    roi_gt_dp_rind=tf.tile(roi_gt_dp_rind,(1,196))
 
-    # roi_gt_batch_ind=tf.ones_like(roi_gt_dp_rind)*batch_num
+    roi_gt_batch_ind=tf.ones_like(roi_gt_dp_rind)*batch_num
 
-    # coords=tf.cast(tf.stack([roi_gt_batch_ind,roi_gt_dp_rind,roi_gt_dp_y,roi_gt_dp_x],axis=2),tf.int32)
-    # return rois, roi_gt_class_ids, deltas, masks,roi_gt_dp_u,roi_gt_dp_v,roi_gt_dp_i,coords
-    return rois, roi_gt_class_ids, deltas, masks
+    coords=tf.cast(tf.stack([roi_gt_batch_ind,roi_gt_dp_rind,roi_gt_dp_y,roi_gt_dp_x],axis=2),tf.int32)
+    return rois, roi_gt_class_ids, deltas, masks,roi_gt_dp_u,roi_gt_dp_v,roi_gt_dp_i,coords
+    # return rois, roi_gt_class_ids, deltas, masks
 
 
 class DetectionTargetLayer(KE.Layer):
@@ -721,56 +721,56 @@ class DetectionTargetLayer(KE.Layer):
         gt_boxes = inputs[2]
         gt_masks = inputs[3]
         #changed
-        # dp_x=inputs[4]
-        # dp_y=inputs[5]
-        # dp_u=inputs[6]
-        # dp_v=inputs[7]
-        # dp_i=inputs[8]
+        dp_x=inputs[4]
+        dp_y=inputs[5]
+        dp_u=inputs[6]
+        dp_v=inputs[7]
+        dp_i=inputs[8]
         # im_shape=inputs[9]
 
         # Slice the batch and run a graph for each slice
         # TODO: Rename target_bbox to target_deltas for clarity
         # proposals, gt_class_ids, gt_boxes, gt_masks, config,gt_dp_x,gt_dp_y,gt_dp_u,gt_dp_v,gt_dp_i,im_shape,batch_num
-        # names = ["rois", "target_class_ids", "target_bbox", "target_mask","target_dp_u","target_dp_v","target_dp_i","target_dp_coords"]
-        names = ["rois", "target_class_ids", "target_bbox", "target_mask"]
+        names = ["rois", "target_class_ids", "target_bbox", "target_mask","target_dp_u","target_dp_v","target_dp_i","target_dp_coords"]
+        # names = ["rois", "target_class_ids", "target_bbox", "target_mask"]
         
-        # outputs = utils.batch_slice_with_batch_num_included(
-        #     [proposals, gt_class_ids, gt_boxes, gt_masks,dp_x,dp_y,dp_u,dp_v,dp_i],
-        #     lambda a,b,c,d,e,f,g, h, i, j: detection_targets_graph( #j is batch num
-        #         a,b,c,d, self.config,e,f,g,h,i,self.image_shape,j),
-        #     self.config.IMAGES_PER_GPU, names=names)
-        outputs = utils.batch_slice(
-            [proposals, gt_class_ids, gt_boxes, gt_masks],
-            lambda a,b,c,d: detection_targets_graph( #j is batch num
-                a,b,c,d, self.config),
+        outputs = utils.batch_slice_with_batch_num_included(
+            [proposals, gt_class_ids, gt_boxes, gt_masks,dp_x,dp_y,dp_u,dp_v,dp_i],
+            lambda a,b,c,d,e,f,g, h, i, j: detection_targets_graph( #j is batch num
+                a,b,c,d, self.config,e,f,g,h,i,self.image_shape,j),
             self.config.IMAGES_PER_GPU, names=names)
+        # outputs = utils.batch_slice(
+        #     [proposals, gt_class_ids, gt_boxes, gt_masks],
+        #     lambda a,b,c,d: detection_targets_graph( #j is batch num
+        #         a,b,c,d, self.config),
+        #     self.config.IMAGES_PER_GPU, names=names)
         return outputs
 
     def compute_output_shape(self, input_shape):
-        # return [
-        #     (None, self.config.TRAIN_ROIS_PER_IMAGE, 4),  # rois
-        #     (None, self.config.TRAIN_ROIS_PER_IMAGE),  # class_ids
-        #     (None, self.config.TRAIN_ROIS_PER_IMAGE, 4),  # deltas
-        #     (None, self.config.TRAIN_ROIS_PER_IMAGE, self.config.MASK_SHAPE[0],
-        #      self.config.MASK_SHAPE[1]),  # masks
-        #     (None, self.config.TRAIN_ROIS_PER_IMAGE, 196),  # u
-        #     (None, self.config.TRAIN_ROIS_PER_IMAGE, 196),  # v
-        #     (None, self.config.TRAIN_ROIS_PER_IMAGE, 196),  # i
-        #     (None, self.config.TRAIN_ROIS_PER_IMAGE,196,4)  # inds fro the heatmap(batch,roi,y,x)
-
-        # ]
         return [
             (None, self.config.TRAIN_ROIS_PER_IMAGE, 4),  # rois
             (None, self.config.TRAIN_ROIS_PER_IMAGE),  # class_ids
             (None, self.config.TRAIN_ROIS_PER_IMAGE, 4),  # deltas
             (None, self.config.TRAIN_ROIS_PER_IMAGE, self.config.MASK_SHAPE[0],
-             self.config.MASK_SHAPE[1])
+             self.config.MASK_SHAPE[1]),  # masks
+            (None, self.config.TRAIN_ROIS_PER_IMAGE, 196),  # u
+            (None, self.config.TRAIN_ROIS_PER_IMAGE, 196),  # v
+            (None, self.config.TRAIN_ROIS_PER_IMAGE, 196),  # i
+            (None, self.config.TRAIN_ROIS_PER_IMAGE,196,4)  # inds fro the heatmap(batch,roi,y,x)
 
         ]
+        # return [
+        #     (None, self.config.TRAIN_ROIS_PER_IMAGE, 4),  # rois
+        #     (None, self.config.TRAIN_ROIS_PER_IMAGE),  # class_ids
+        #     (None, self.config.TRAIN_ROIS_PER_IMAGE, 4),  # deltas
+        #     (None, self.config.TRAIN_ROIS_PER_IMAGE, self.config.MASK_SHAPE[0],
+        #      self.config.MASK_SHAPE[1])
+
+        # ]
 
     def compute_mask(self, inputs, mask=None):
-        # return [None, None, None, None,None,None,None,None]
-        return [None, None, None, None]
+        return [None, None, None, None,None,None,None,None]
+        # return [None, None, None, None]
 
 
 
@@ -2292,13 +2292,13 @@ class MaskRCNN():
             # Note that proposal class IDs, gt_boxes, and gt_masks are zero
             # padded. Equally, returned rois and targets are zero padded.
 
-            # rois, target_class_ids, target_bbox, target_mask,target_u,target_v,target_i,target_coords =\
-            #     DetectionTargetLayer(config,image_shape=config.IMAGE_SHAPE[:2],name="proposal_targets")([
-            #         target_rois, input_gt_class_ids, gt_boxes, input_gt_masks,
-            #         input_dp_x,input_dp_y,input_dp_u,input_dp_v,input_dp_i])
-            rois, target_class_ids, target_bbox, target_mask =\
+            rois, target_class_ids, target_bbox, target_mask,target_u,target_v,target_i,target_coords =\
                 DetectionTargetLayer(config,image_shape=config.IMAGE_SHAPE[:2],name="proposal_targets")([
-                    target_rois, input_gt_class_ids, gt_boxes, input_gt_masks])
+                    target_rois, input_gt_class_ids, gt_boxes, input_gt_masks,
+                    input_dp_x,input_dp_y,input_dp_u,input_dp_v,input_dp_i])
+            # rois, target_class_ids, target_bbox, target_mask =\
+            #     DetectionTargetLayer(config,image_shape=config.IMAGE_SHAPE[:2],name="proposal_targets")([
+            #         target_rois, input_gt_class_ids, gt_boxes, input_gt_masks])
 
             # Network Heads
             # TODO: verify that this handles zero padded ROIs
