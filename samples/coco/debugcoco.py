@@ -435,6 +435,12 @@ if __name__ == '__main__':
         #     dataset_train.load_coco(args.dataset, "valminusminival", year=args.year, auto_download=args.download)
         dataset_train.prepare()
 
+        print ("loading gts fro the frist ten images\n")
+        for ijk in range(10):
+            im_info=self.image_info[ijk]
+            im_id=im_info['id']
+            dataset_train.load_mask_and_dense_points(im_id)
+
         # Validation dataset
         print ("loading dataset for validation")
         dataset_val = DenseCocoDataset()
