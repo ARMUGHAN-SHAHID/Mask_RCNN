@@ -58,7 +58,7 @@ class CocoConfig(Config):
     NUM_CLASSES = 1 + 1  #DPCOCO has 1 class
 
     IMAGE_MIN_DIM = 400
-    IMAGE_MAX_DIM = 800
+    IMAGE_MAX_DIM = 512
 
 
 ############################################################
