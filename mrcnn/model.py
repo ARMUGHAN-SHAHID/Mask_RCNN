@@ -1330,15 +1330,15 @@ def dense_i_loss_graph(target_coords,target_i,pred_logits) :
     target_i=tf.cast(target_i,tf.int32)
     target_i=tf.Print(target_i,[target_i],"\n Printing target i received by func",summarize=20)
     pred_logits=tf.cast(pred_logits,tf.float32)
-
+    filtered_inds=tf.where(target_i>0)#wheer target class is not background
+    filtered_inds=tf.Print(filtered_inds,[filtered_inds],"\nPrinting filtered inds",summarize=20)
     # print ("blah againl1308")
     # print (target_coords)
     # print (target_i)
     # print (pred_logits)
     # print ("in finished")
-    def i_loss(target_coords,target_i,pred_logits):
-        filtered_inds=tf.where(target_i>0)#wheer target class is not background
-        filtered_inds=tf.Print(filtered_inds,[filtered_inds],"\nPrinting filtered inds",summarize=20)
+    def i_loss(target_coords,target_i,pred_logits,filtered_inds):
+        
         # print ("hello")
         # print (filtered_inds)
         filtered_i=tf.gather_nd(target_i,filtered_inds)
@@ -1364,9 +1364,9 @@ def dense_i_loss_graph(target_coords,target_i,pred_logits) :
         loss=tf.Print(loss,[loss],"\nPrinting dense i loss after mean\n",summarize=20)
 
         return loss
-        
-    loss=K.switch(tf.size(target_i) > 0,
-                    i_loss(target_coords,target_i,pred_logits),
+
+    loss=K.switch(tf.size(filtered_inds) > 0,
+                    i_loss(target_coords,target_i,pred_logits,filtered_inds),
                     tf.constant(0.0))
     loss=tf.Print(loss,[loss],"\nPrinting final  dense i loss after mean\n",summarize=20)
 
