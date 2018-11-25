@@ -1129,13 +1129,13 @@ if __name__ == '__main__':
         #             augmentation=augmentation)
 
         # Training - Stage 3
-        # Fine tune all layers
-        print("Fine tune all layers")
-        model.train(dataset_train, dataset_val,
-                    learning_rate=config.LEARNING_RATE / 10,
-                    epochs=160,
-                    layers='all',
-                    augmentation=augmentation)
+        # # Fine tune all layers
+        # print("Fine tune all layers")
+        # model.train(dataset_train, dataset_val,
+        #             learning_rate=config.LEARNING_RATE / 10,
+        #             epochs=160,
+        #             layers='all',
+        #             augmentation=augmentation)
 
     elif args.command == "evaluate":
         # Validation dataset
