@@ -442,7 +442,7 @@ if __name__ == '__main__':
         for ijk in range(10):
             im_info=dataset_train.image_info[ijk]
             im_id=im_info['id']
-            dataset_train.load_mask_and_dense_points(im_id)
+            dataset_train.load_mask_and_dense_points(ijk)
 
         # Validation dataset
         print ("loading dataset for validation")
