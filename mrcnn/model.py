@@ -1326,7 +1326,7 @@ def mrcnn_mask_loss_graph(target_masks, target_class_ids, pred_masks):
     return loss
 
 def dense_i_loss_graph(target_coords,target_i,pred_logits) :
-    target_coords=tf.cast(target_coords,tf.int16)
+    target_coords=tf.cast(target_coords,tf.int32)
     target_i=tf.cast(target_i,tf.uint8)
     pred_logits=tf.cast(pred_logits,tf.float32)
 
