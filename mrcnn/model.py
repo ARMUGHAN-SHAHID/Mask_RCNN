@@ -1442,8 +1442,6 @@ def load_image_gt(dataset, config, image_id, augment=False, augmentation=None,
     """
     # Load image and mask and densepose x y
     image = dataset.load_image(image_id)
-    # mask, class_ids,dp_x,dp_y,dp_u,dp_v,dp_i = dataset.load_mask(image_id)
-    # mask, class_ids = dataset.load_mask(image_id)
     mask, class_ids,dp_x,dp_y,dp_u,dp_v,dp_i =dataset.load_mask_and_dense_points(image_id)
     original_shape = image.shape
     image, window, scale, padding, crop = utils.resize_image(
@@ -1464,34 +1462,34 @@ def load_image_gt(dataset, config, image_id, augment=False, augmentation=None,
 
     # Augmentation
     # This requires the imgaug lib (https://github.com/aleju/imgaug)
-    if augmentation:
-        import imgaug
+    # if augmentation:
+    #     import imgaug
 
-        # Augmenters that are safe to apply to masks
-        # Some, such as Affine, have settings that make them unsafe, so always
-        # test your augmentation on masks
-        MASK_AUGMENTERS = ["Sequential", "SomeOf", "OneOf", "Sometimes",
-                           "Fliplr", "Flipud", "CropAndPad",
-                           "Affine", "PiecewiseAffine"]
+    #     # Augmenters that are safe to apply to masks
+    #     # Some, such as Affine, have settings that make them unsafe, so always
+    #     # test your augmentation on masks
+    #     MASK_AUGMENTERS = ["Sequential", "SomeOf", "OneOf", "Sometimes",
+    #                        "Fliplr", "Flipud", "CropAndPad",
+    #                        "Affine", "PiecewiseAffine"]
 
-        def hook(images, augmenter, parents, default):
-            """Determines which augmenters to apply to masks."""
-            return augmenter.__class__.__name__ in MASK_AUGMENTERS
+    #     def hook(images, augmenter, parents, default):
+    #         """Determines which augmenters to apply to masks."""
+    #         return augmenter.__class__.__name__ in MASK_AUGMENTERS
 
-        # Store shapes before augmentation to compare
-        image_shape = image.shape
-        mask_shape = mask.shape
-        # Make augmenters deterministic to apply similarly to images and masks
-        det = augmentation.to_deterministic()
-        image = det.augment_image(image)
-        # Change mask to np.uint8 because imgaug doesn't support np.bool
-        mask = det.augment_image(mask.astype(np.uint8),
-                                 hooks=imgaug.HooksImages(activator=hook))
-        # Verify that shapes didn't change
-        assert image.shape == image_shape, "Augmentation shouldn't change image size"
-        assert mask.shape == mask_shape, "Augmentation shouldn't change mask size"
-        # Change mask back to bool
-        mask = mask.astype(np.bool)
+    #     # Store shapes before augmentation to compare
+    #     image_shape = image.shape
+    #     mask_shape = mask.shape
+    #     # Make augmenters deterministic to apply similarly to images and masks
+    #     det = augmentation.to_deterministic()
+    #     image = det.augment_image(image)
+    #     # Change mask to np.uint8 because imgaug doesn't support np.bool
+    #     mask = det.augment_image(mask.astype(np.uint8),
+    #                              hooks=imgaug.HooksImages(activator=hook))
+    #     # Verify that shapes didn't change
+    #     assert image.shape == image_shape, "Augmentation shouldn't change image size"
+    #     assert mask.shape == mask_shape, "Augmentation shouldn't change mask size"
+    #     # Change mask back to bool
+    #     mask = mask.astype(np.bool)
 
     # Note that some boxes might be all zeros if the corresponding mask got cropped out.
     # and here is to filter them out
@@ -1499,25 +1497,25 @@ def load_image_gt(dataset, config, image_id, augment=False, augmentation=None,
     mask = mask[:, :, _idx]
     class_ids = class_ids[_idx]
     num_instances=len(class_ids)
-    # densepose_x=np.zeros([num_instances,196],dtype=np.float32)
-    # densepose_y=np.zeros([num_instances,196],dtype=np.float32)
-    # densepose_u=np.zeros([num_instances,196],dtype=np.float32)
-    # densepose_v=np.zeros([num_instances,196],dtype=np.float32)
-    # densepose_i=np.zeros([num_instances,196],dtype=np.int32)
+    densepose_x=np.zeros([num_instances,196],dtype=np.float32)
+    densepose_y=np.zeros([num_instances,196],dtype=np.float32)
+    densepose_u=np.zeros([num_instances,196],dtype=np.float32)
+    densepose_v=np.zeros([num_instances,196],dtype=np.float32)
+    densepose_i=np.zeros([num_instances,196],dtype=np.int32)
 
-    # for i in np.arange(num_instances):
-    #     num_points=len(dp_x[i])
-    #     densepose_x[i,:num_points]=dp_x[i]
-    #     densepose_y[i,:num_points]=dp_y[i]
-    #     densepose_u[i,:num_points]=dp_u[i]
-    #     densepose_v[i,:num_points]=dp_v[i]
-    #     densepose_i[i,:num_points]=dp_i[i]
+    for i in np.arange(num_instances):
+        num_points=len(dp_x[i])
+        densepose_x[i,:num_points]=dp_x[i]
+        densepose_y[i,:num_points]=dp_y[i]
+        densepose_u[i,:num_points]=dp_u[i]
+        densepose_v[i,:num_points]=dp_v[i]
+        densepose_i[i,:num_points]=dp_i[i]
 
-    # densepose_x=densepose_x[_idx,:]
-    # densepose_y=densepose_y[_idx,:]
-    # densepose_u=densepose_u[_idx,:]
-    # densepose_v=densepose_v[_idx,:]
-    # densepose_i=densepose_i[_idx,:]
+    densepose_x=densepose_x[_idx,:]
+    densepose_y=densepose_y[_idx,:]
+    densepose_u=densepose_u[_idx,:]
+    densepose_v=densepose_v[_idx,:]
+    densepose_i=densepose_i[_idx,:]
 
     # Bounding boxes. Note that some boxes might be all zeros
     # if the corresponding mask got cropped out.
