@@ -110,6 +110,9 @@ class DenseCocoDataset(utils.Dataset):
             h=coco.imgs[i]["height"]
             w=coco.imgs[i]["width"]
             im_path=os.path.join(image_dir, coco.imgs[i]['file_name'])
+            if  not os.path.exists(im_path):
+                print ("{}\ninvalid path for image id={}".format(im_path,i))
+                
             annotations=self.get_annotations(coco.loadAnns(coco.getAnnIds(
                     imgIds=[i], catIds=class_ids, iscrowd=None)))
 
