@@ -1323,15 +1323,17 @@ def mrcnn_mask_loss_graph(target_masks, target_class_ids, pred_masks):
                     K.binary_crossentropy(target=y_true, output=y_pred),
                     tf.constant(0.0))
     loss = K.mean(loss)
+    loss=tf.Print(loss,[loss],"\nPrinting mask loss after mean\n",summarize=20)
+
     return loss
 
 def dense_i_loss_graph(target_coords,target_i,pred_logits) :
     target_coords=tf.cast(target_coords,tf.int32)
     target_i=tf.cast(target_i,tf.int32)
-    target_i=tf.Print(target_i,[target_i],"\n Printing target i received by func",summarize=20)
+    # target_i=tf.Print(target_i,[target_i],"\n Printing target i received by func",summarize=20)
     pred_logits=tf.cast(pred_logits,tf.float32)
     filtered_inds=tf.where(target_i>0)#wheer target class is not background
-    filtered_inds=tf.Print(filtered_inds,[filtered_inds],"\nPrinting filtered inds",summarize=20)
+    # filtered_inds=tf.Print(filtered_inds,[filtered_inds],"\nPrinting filtered inds",summarize=20)
     # print ("blah againl1308")
     # print (target_coords)
     # print (target_i)
@@ -1342,33 +1344,33 @@ def dense_i_loss_graph(target_coords,target_i,pred_logits) :
         # print ("hello")
         # print (filtered_inds)
         filtered_i=tf.gather_nd(target_i,filtered_inds)
-        filtered_i=tf.Print(filtered_i,[filtered_i],"\nPrinting filtered i",summarize=20)
+        # filtered_i=tf.Print(filtered_i,[filtered_i],"\nPrinting filtered i",summarize=20)
         # filtered_i=tf.Print(filtered_)
         # print (filtered_i)
         filtered_coords=tf.gather_nd(target_coords,filtered_inds)
-        filtered_coords=tf.Print(filtered_coords,[filtered_coords],"\nPriniting coords in dense i",summarize=20)
+        # filtered_coords=tf.Print(filtered_coords,[filtered_coords],"\nPriniting coords in dense i",summarize=20)
         # print (filtered_coords)
         # print ("end")
         pred_logits=tf.gather_nd(pred_logits,filtered_coords)
-        pred_logits=tf.Print(pred_logits,[pred_logits],"\nPrinting pred logits",summarize=20)
+        # pred_logits=tf.Print(pred_logits,[pred_logits],"\nPrinting pred logits",summarize=20)
         # print ("pred logits tensor info")
         # print (pred_logits)
 
         loss = tf.nn.sparse_softmax_cross_entropy_with_logits(
             labels=filtered_i, logits=pred_logits)
-        loss=tf.Print(loss,[loss],"\nPrinting dense i loss tensor",summarize=20)
+        # loss=tf.Print(loss,[loss],"\nPrinting dense i loss tensor",summarize=20)
 
         # Computer loss mean. Use only predictions that contribute
         # to the loss to get a correct mean.
         loss = tf.reduce_mean(loss)
-        loss=tf.Print(loss,[loss],"\nPrinting dense i loss after mean\n",summarize=20)
+        # loss=tf.Print(loss,[loss],"\nPrinting dense i loss after mean\n",summarize=20)
 
         return loss
 
     loss=K.switch(tf.size(filtered_inds) > 0,
                     i_loss(target_coords,target_i,pred_logits,filtered_inds),
                     tf.constant(0.0))
-    loss=tf.Print(loss,[loss],"\nPrinting final  dense i loss after mean\n",summarize=20)
+    # loss=tf.Print(loss,[loss],"\nPrinting final  dense i loss after mean\n",summarize=20)
 
     return loss
 
@@ -1383,25 +1385,33 @@ def dense_u_loss_graph(target_coords, target_u, target_i, pred_map_u, pred_logit
     pred_i=tf.argmax(pred_logits_i,axis=4) #finding class pred for each roi
 
     filtered_inds=tf.where(target_i>0)#where target class is not background
-    filtered_i=tf.gather_nd(target_i,filtered_inds)
-    filtered_u=tf.gather_nd(target_u,filtered_inds)
-    filtered_coords=tf.gather_nd(target_coords,filtered_inds)
-    
-    pred_i=tf.gather_nd(pred_i,filtered_coords)
-    bool_mask_for_correct_pred=tf.equal(tf.cast(pred_i,tf.int32),filtered_i)
 
-    pred_u=tf.gather_nd(pred_map_u,filtered_coords)
+    def u_loss(target_coords,target_i,target_u,pred_map_u,pred_logits_i,pred_i,filtered_inds):
+        filtered_i=tf.gather_nd(target_i,filtered_inds)
+        filtered_u=tf.gather_nd(target_u,filtered_inds)
+        filtered_coords=tf.gather_nd(target_coords,filtered_inds)
+        
+        pred_i=tf.gather_nd(pred_i,filtered_coords)
+        bool_mask_for_correct_pred=tf.equal(tf.cast(pred_i,tf.int32),filtered_i)
 
-    num_points=tf.shape(pred_u)[0]
-    pred_u_coords=tf.stack([tf.range(num_points),filtered_i],axis=1)#picking u for the respective classes
-    pred_u=tf.gather_nd(pred_u,pred_u_coords)
+        pred_u=tf.gather_nd(pred_map_u,filtered_coords)
 
-    loss=smooth_l1_loss(y_true=filtered_u, y_pred=pred_u)
-    loss=loss*tf.cast(bool_mask_for_correct_pred,tf.float32)
+        num_points=tf.shape(pred_u)[0]
+        pred_u_coords=tf.stack([tf.range(num_points),filtered_i],axis=1)#picking u for the respective classes
+        pred_u=tf.gather_nd(pred_u,pred_u_coords)
 
-    # Computer loss mean. Use only predictions that contribute
-    # to the loss to get a correct mean.
-    loss = tf.reduce_mean(loss)
+        loss=smooth_l1_loss(y_true=filtered_u, y_pred=pred_u)
+        loss=loss*tf.cast(bool_mask_for_correct_pred,tf.float32)
+
+        # Computer loss mean. Use only predictions that contribute
+        # to the loss to get a correct mean.
+        loss = tf.reduce_mean(loss)
+        return loss
+
+    loss=K.switch(tf.size(filtered_inds) > 0,
+                    u_loss(target_coords,target_i,target_u,pred_map_u,pred_logits_i,pred_i,filtered_inds),
+                    tf.constant(0.0))
+
     return loss
 
 def dense_v_loss_graph(target_coords,target_v,target_i,pred_map_v,pred_logits_i) :
@@ -1414,27 +1424,34 @@ def dense_v_loss_graph(target_coords,target_v,target_i,pred_map_v,pred_logits_i)
     pred_i=tf.argmax(pred_logits_i,axis=4) #finding class pred for each roi
     filtered_inds=tf.where(target_i>0)#where target class is not background
 
-    filtered_i=tf.gather_nd(target_i,filtered_inds)
-    filtered_v=tf.gather_nd(target_v,filtered_inds)
-    filtered_coords=tf.gather_nd(target_coords,filtered_inds)
-    
-    pred_i=tf.gather_nd(pred_i,filtered_coords)
-    bool_mask_for_correct_pred=tf.equal(tf.cast(pred_i,tf.int32),filtered_i)
+    def v_loss(target_coords,target_i,target_v,pred_map_v,pred_logits_i,pred_i,filtered_inds):
 
-    pred_v=tf.gather_nd(pred_map_v,filtered_coords)
+        filtered_i=tf.gather_nd(target_i,filtered_inds)
+        filtered_v=tf.gather_nd(target_v,filtered_inds)
+        filtered_coords=tf.gather_nd(target_coords,filtered_inds)
+        
+        pred_i=tf.gather_nd(pred_i,filtered_coords)
+        bool_mask_for_correct_pred=tf.equal(tf.cast(pred_i,tf.int32),filtered_i)
 
-    num_points=tf.shape(pred_v)[0]
-    pred_v_coords=tf.stack([tf.range(num_points),filtered_i],axis=1)#picking u for the respective classes
-    pred_v=tf.gather_nd(pred_v,pred_v_coords)
+        pred_v=tf.gather_nd(pred_map_v,filtered_coords)
 
-    loss=smooth_l1_loss(y_true=filtered_v, y_pred=pred_v)
-    loss=loss*tf.cast(bool_mask_for_correct_pred,tf.float32)
+        num_points=tf.shape(pred_v)[0]
+        pred_v_coords=tf.stack([tf.range(num_points),filtered_i],axis=1)#picking u for the respective classes
+        pred_v=tf.gather_nd(pred_v,pred_v_coords)
 
-    # Computer loss mean. Use only predictions that contribute
-    # to the loss to get a correct mean.
-    loss = tf.reduce_mean(loss)
+        loss=smooth_l1_loss(y_true=filtered_v, y_pred=pred_v)
+        loss=loss*tf.cast(bool_mask_for_correct_pred,tf.float32)
+
+        # Computer loss mean. Use only predictions that contribute
+        # to the loss to get a correct mean.
+        loss = tf.reduce_mean(loss)
+        return loss
+
+    loss=K.switch(tf.size(filtered_inds) > 0,
+                    v_loss(target_coords,target_i,target_v,pred_map_v,pred_logits_i,pred_i,filtered_inds),
+                    tf.constant(0.0))
+
     return loss
-
 
 ############################################################
 #  Data Generator
