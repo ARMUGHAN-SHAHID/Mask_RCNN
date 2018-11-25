@@ -2308,10 +2308,10 @@ class MaskRCNN():
 
             mrcnn_mask = build_fpn_mask_graph(rois, mrcnn_feature_maps,input_image_meta,config.MASK_POOL_SIZE,config.NUM_CLASSES,
                 train_bn=config.TRAIN_BN)
-            # feature_map_dense=build_fpn_shared_densepose_branch(rois, mrcnn_feature_maps,input_image_meta,config.BODY_UV_RCNN_POOL_SIZE,config,train_bn=config.TRAIN_BN)
+            feature_map_dense=build_fpn_shared_densepose_branch(rois, mrcnn_feature_maps,input_image_meta,config.BODY_UV_RCNN_POOL_SIZE,config,train_bn=config.TRAIN_BN)
             # print (feature_map_dense)
             # print ("hello")
-            # u_pred,v_pred,i_pred=build_dense_u_v_i_graph(feature_map_dense,config)
+            u_pred,v_pred,i_pred=build_dense_u_v_i_graph(feature_map_dense,config)
 
             # TODO: clean up (use tf.identify if necessary)
             output_rois = KL.Lambda(lambda x: x * 1, name="output_rois")(rois)
