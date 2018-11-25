@@ -430,7 +430,7 @@ if __name__ == '__main__':
         # validation set, as as in the Mask RCNN paper.
         print ("loading dataset for training")
         dataset_train = DenseCocoDataset()
-        dataset_train.load_coco(args.dataset, "train", year=args.year, auto_download=False)
+        dataset_train.load_coco(args.dataset, "train", year=args.year)
         # if args.year in '2014':
         #     dataset_train.load_coco(args.dataset, "valminusminival", year=args.year, auto_download=args.download)
         dataset_train.prepare()
@@ -439,7 +439,7 @@ if __name__ == '__main__':
         print ("loading dataset for validation")
         dataset_val = DenseCocoDataset()
         val_type = "val" if args.year in '2017' else "minival"
-        dataset_val.load_coco(args.dataset, val_type, year=args.year, auto_download=False)
+        dataset_val.load_coco(args.dataset, val_type, year=args.year)
         dataset_val.prepare()
 
         # Image Augmentation
