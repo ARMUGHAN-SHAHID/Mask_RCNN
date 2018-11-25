@@ -2337,8 +2337,8 @@ class MaskRCNN():
             #     [target_coords, target_v,target_i,v_pred,i_pred])
             # print("calling i loss")
             # # i_loss=dense_i_loss_graph(target_coords, target_i,i_pred)
-            # i_loss =KL.Lambda(lambda x: dense_i_loss_graph(*x), name="i_loss")(
-            #     [target_coords, target_i,i_pred])          
+            i_loss =KL.Lambda(lambda x: dense_i_loss_graph(*x), name="i_loss")(
+                [target_coords, target_i,i_pred])          
             # print ("blah2")
             
             
@@ -2359,7 +2359,7 @@ class MaskRCNN():
             outputs = [rpn_class_logits, rpn_class, rpn_bbox,
                        mrcnn_class_logits, mrcnn_class, mrcnn_bbox, mrcnn_mask,
                        rpn_rois, output_rois,
-                       rpn_class_loss, rpn_bbox_loss, class_loss, bbox_loss, mask_loss]
+                       rpn_class_loss, rpn_bbox_loss, class_loss, bbox_loss, mask_loss,i_loss]
             # outputs = [rpn_class_logits, rpn_class, rpn_bbox,
             #            mrcnn_class_logits, mrcnn_class, mrcnn_bbox, mrcnn_mask,
             #            rpn_rois, output_rois,
@@ -2504,7 +2504,7 @@ class MaskRCNN():
         #     "mrcnn_class_loss", "mrcnn_bbox_loss", "mrcnn_mask_loss","u_loss","v_loss","i_loss"]
         loss_names = [
             "rpn_class_loss",  "rpn_bbox_loss",
-            "mrcnn_class_loss", "mrcnn_bbox_loss", "mrcnn_mask_loss"]
+            "mrcnn_class_loss", "mrcnn_bbox_loss", "mrcnn_mask_loss","i_loss"]
         for name in loss_names:
             layer = self.keras_model.get_layer(name)
             if layer.output in self.keras_model.losses:
