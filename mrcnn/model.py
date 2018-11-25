@@ -1328,7 +1328,7 @@ def mrcnn_mask_loss_graph(target_masks, target_class_ids, pred_masks):
 def dense_i_loss_graph(target_coords,target_i,pred_logits) :
     target_coords=tf.cast(target_coords,tf.int32)
     target_i=tf.cast(target_i,tf.int32)
-    target_i=tf.Print(target_i,[target_i],"\n Printing target i received by func")
+    target_i=tf.Print(target_i,[target_i],"\n Printing target i received by func",summarize=20)
     pred_logits=tf.cast(pred_logits,tf.float32)
 
     # print ("blah againl1308")
@@ -1337,30 +1337,30 @@ def dense_i_loss_graph(target_coords,target_i,pred_logits) :
     # print (pred_logits)
     # print ("in finished")
     filtered_inds=tf.where(target_i>0)#wheer target class is not background
-    filtered_inds=tf.Print(filtered_inds,[filtered_inds],"\nPrinting filtered inds")
+    filtered_inds=tf.Print(filtered_inds,[filtered_inds],"\nPrinting filtered inds",summarize=20)
     # print ("hello")
     # print (filtered_inds)
     filtered_i=tf.gather_nd(target_i,filtered_inds)
-    filtered_i=tf.Print(filtered_i,[filtered_i],"\nPrinting filtered i")
+    filtered_i=tf.Print(filtered_i,[filtered_i],"\nPrinting filtered i",summarize=20)
     # filtered_i=tf.Print(filtered_)
     # print (filtered_i)
     filtered_coords=tf.gather_nd(target_coords,filtered_inds)
-    filtered_coords=tf.Print(filtered_coords,[filtered_coords],"\nPriniting coords in dense i")
+    filtered_coords=tf.Print(filtered_coords,[filtered_coords],"\nPriniting coords in dense i",summarize=20)
     # print (filtered_coords)
     # print ("end")
     pred_logits=tf.gather_nd(pred_logits,filtered_coords)
-    pred_logits=tf.Print(pred_logits,[pred_logits],"\nPrinting pred logits")
+    pred_logits=tf.Print(pred_logits,[pred_logits],"\nPrinting pred logits",summarize=20)
     # print ("pred logits tensor info")
     # print (pred_logits)
 
     loss = tf.nn.sparse_softmax_cross_entropy_with_logits(
         labels=filtered_i, logits=pred_logits)
-    loss=tf.Print(loss,[loss],"\nPrinting dense i loss tensor")
+    loss=tf.Print(loss,[loss],"\nPrinting dense i loss tensor",summarize=20)
 
     # Computer loss mean. Use only predictions that contribute
     # to the loss to get a correct mean.
     loss = tf.reduce_mean(loss)
-    loss=tf.Print(loss,[loss],"\nPrinting dense i loss after mean\n")
+    loss=tf.Print(loss,[loss],"\nPrinting dense i loss after mean\n",summarize=20)
 
     return loss
 
