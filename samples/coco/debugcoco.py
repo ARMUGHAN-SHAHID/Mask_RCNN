@@ -219,6 +219,9 @@ class DenseCocoDataset(utils.Dataset):
             n=np.zeros((0,0))
             return super(CocoDataset, self).load_mask(image_id),None,None,None,None,None
 
+    def test_load_mask_and_dense_points(image_id):
+        self.load_mask_and_dense_points(image_id)
+
     def image_reference(self, image_id):
         """Return a link to the image in the COCO Website."""
         info = self.image_info[image_id]
@@ -439,7 +442,7 @@ if __name__ == '__main__':
         for ijk in range(10):
             im_info=self.image_info[ijk]
             im_id=im_info['id']
-            dataset_train.load_mask_and_dense_points(im_id)
+            dataset_train.test_load_mask_and_dense_points(im_id)
 
         # Validation dataset
         print ("loading dataset for validation")
