@@ -440,7 +440,7 @@ if __name__ == '__main__':
 
         print ("loading gts fro the frist ten images\n")
         for ijk in range(10):
-            im_info=self.image_info[ijk]
+            im_info=dataset_train.image_info[ijk]
             im_id=im_info['id']
             dataset_train.test_load_mask_and_dense_points(im_id)
 
