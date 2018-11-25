@@ -156,7 +156,8 @@ class DenseCocoDataset(utils.Dataset):
         class_ids: a 1D array of class IDs of the instance masks.
         """
         # If not a COCO image, delegate to parent class.
-        
+        image_info = self.image_info[image_id]
+
         instance_masks = []
         class_ids = []
 
