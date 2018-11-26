@@ -59,7 +59,7 @@ class CocoConfig(Config):
 
     IMAGE_MIN_DIM = 400
     IMAGE_MAX_DIM = 512
-
+    RPN_ANCHOR_SCALES = (16,32, 64, 128, 256)
 
 ############################################################
 #  Dataset

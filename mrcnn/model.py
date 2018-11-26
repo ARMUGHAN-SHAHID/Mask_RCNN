@@ -22,6 +22,17 @@ import keras.backend as K
 import keras.layers as KL
 import keras.engine as KE
 import keras.models as KM
+# from keras.models import Model
+# from keras.layers import Input, Conv2D, GlobalAveragePooling2D, Dropout
+# from keras.layers import Activation, BatchNormalization, add, Reshape
+from keras.applications.mobilenet import relu6, DepthwiseConv2D
+
+
+
+
+
+
+
 
 from mrcnn import utils
 
@@ -92,118 +103,237 @@ def compute_backbone_shapes(config, image_shape):
 # Code adopted from:
 # https://github.com/fchollet/deep-learning-models/blob/master/resnet50.py
 
-def identity_block(input_tensor, kernel_size, filters, stage, block,
-                   use_bias=True, train_bn=True):
-    """The identity_block is the block that has no conv layer at shortcut
+# def identity_block(input_tensor, kernel_size, filters, stage, block,
+#                    use_bias=True, train_bn=True):
+#     """The identity_block is the block that has no conv layer at shortcut
+#     # Arguments
+#         input_tensor: input tensor
+#         kernel_size: default 3, the kernel size of middle conv layer at main path
+#         filters: list of integers, the nb_filters of 3 conv layer at main path
+#         stage: integer, current stage label, used for generating layer names
+#         block: 'a','b'..., current block label, used for generating layer names
+#         use_bias: Boolean. To use or not use a bias in conv layers.
+#         train_bn: Boolean. Train or freeze Batch Norm layers
+#     """
+#     nb_filter1, nb_filter2, nb_filter3 = filters
+#     conv_name_base = 'res' + str(stage) + block + '_branch'
+#     bn_name_base = 'bn' + str(stage) + block + '_branch'
+
+#     x = KL.Conv2D(nb_filter1, (1, 1), name=conv_name_base + '2a',
+#                   use_bias=use_bias)(input_tensor)
+#     x = BatchNorm(name=bn_name_base + '2a')(x, training=train_bn)
+#     x = KL.Activation('relu')(x)
+
+#     x = KL.Conv2D(nb_filter2, (kernel_size, kernel_size), padding='same',
+#                   name=conv_name_base + '2b', use_bias=use_bias)(x)
+#     x = BatchNorm(name=bn_name_base + '2b')(x, training=train_bn)
+#     x = KL.Activation('relu')(x)
+
+#     x = KL.Conv2D(nb_filter3, (1, 1), name=conv_name_base + '2c',
+#                   use_bias=use_bias)(x)
+#     x = BatchNorm(name=bn_name_base + '2c')(x, training=train_bn)
+
+#     x = KL.Add()([x, input_tensor])
+#     x = KL.Activation('relu', name='res' + str(stage) + block + '_out')(x)
+#     return x
+
+
+# def conv_block(input_tensor, kernel_size, filters, stage, block,
+#                strides=(2, 2), use_bias=True, train_bn=True):
+#     """conv_block is the block that has a conv layer at shortcut
+#     # Arguments
+#         input_tensor: input tensor
+#         kernel_size: default 3, the kernel size of middle conv layer at main path
+#         filters: list of integers, the nb_filters of 3 conv layer at main path
+#         stage: integer, current stage label, used for generating layer names
+#         block: 'a','b'..., current block label, used for generating layer names
+#         use_bias: Boolean. To use or not use a bias in conv layers.
+#         train_bn: Boolean. Train or freeze Batch Norm layers
+#     Note that from stage 3, the first conv layer at main path is with subsample=(2,2)
+#     And the shortcut should have subsample=(2,2) as well
+#     """
+#     nb_filter1, nb_filter2, nb_filter3 = filters
+#     conv_name_base = 'res' + str(stage) + block + '_branch'
+#     bn_name_base = 'bn' + str(stage) + block + '_branch'
+
+#     x = KL.Conv2D(nb_filter1, (1, 1), strides=strides,
+#                   name=conv_name_base + '2a', use_bias=use_bias)(input_tensor)
+#     x = BatchNorm(name=bn_name_base + '2a')(x, training=train_bn)
+#     x = KL.Activation('relu')(x)
+
+#     x = KL.Conv2D(nb_filter2, (kernel_size, kernel_size), padding='same',
+#                   name=conv_name_base + '2b', use_bias=use_bias)(x)
+#     x = BatchNorm(name=bn_name_base + '2b')(x, training=train_bn)
+#     x = KL.Activation('relu')(x)
+
+#     x = KL.Conv2D(nb_filter3, (1, 1), name=conv_name_base +
+#                   '2c', use_bias=use_bias)(x)
+#     x = BatchNorm(name=bn_name_base + '2c')(x, training=train_bn)
+
+#     shortcut = KL.Conv2D(nb_filter3, (1, 1), strides=strides,
+#                          name=conv_name_base + '1', use_bias=use_bias)(input_tensor)
+#     shortcut = BatchNorm(name=bn_name_base + '1')(shortcut, training=train_bn)
+
+#     x = KL.Add()([x, shortcut])
+#     x = KL.Activation('relu', name='res' + str(stage) + block + '_out')(x)
+#     return x
+
+
+# def resnet_graph(input_image, architecture, stage5=False, train_bn=True):
+#     """Build a ResNet graph.
+#         architecture: Can be resnet50 or resnet101
+#         stage5: Boolean. If False, stage5 of the network is not created
+#         train_bn: Boolean. Train or freeze Batch Norm layers
+#     """
+#     assert architecture in ["resnet50", "resnet101"]
+#     # Stage 1
+#     x = KL.ZeroPadding2D((3, 3))(input_image)
+#     x = KL.Conv2D(64, (7, 7), strides=(2, 2), name='conv1', use_bias=True)(x)
+#     x = BatchNorm(name='bn_conv1')(x, training=train_bn)
+#     x = KL.Activation('relu')(x)
+#     C1 = x = KL.MaxPooling2D((3, 3), strides=(2, 2), padding="same")(x)
+#     # Stage 2
+#     x = conv_block(x, 3, [64, 64, 256], stage=2, block='a', strides=(1, 1), train_bn=train_bn)
+#     x = identity_block(x, 3, [64, 64, 256], stage=2, block='b', train_bn=train_bn)
+#     C2 = x = identity_block(x, 3, [64, 64, 256], stage=2, block='c', train_bn=train_bn)
+#     # Stage 3
+#     x = conv_block(x, 3, [128, 128, 512], stage=3, block='a', train_bn=train_bn)
+#     x = identity_block(x, 3, [128, 128, 512], stage=3, block='b', train_bn=train_bn)
+#     x = identity_block(x, 3, [128, 128, 512], stage=3, block='c', train_bn=train_bn)
+#     C3 = x = identity_block(x, 3, [128, 128, 512], stage=3, block='d', train_bn=train_bn)
+#     # Stage 4
+#     x = conv_block(x, 3, [256, 256, 1024], stage=4, block='a', train_bn=train_bn)
+#     block_count = {"resnet50": 5, "resnet101": 22}[architecture]
+#     for i in range(block_count):
+#         x = identity_block(x, 3, [256, 256, 1024], stage=4, block=chr(98 + i), train_bn=train_bn)
+#     C4 = x
+#     # Stage 5
+#     if stage5:
+#         x = conv_block(x, 3, [512, 512, 2048], stage=5, block='a', train_bn=train_bn)
+#         x = identity_block(x, 3, [512, 512, 2048], stage=5, block='b', train_bn=train_bn)
+#         C5 = x = identity_block(x, 3, [512, 512, 2048], stage=5, block='c', train_bn=train_bn)
+#     else:
+#         C5 = None
+#     return [C1, C2, C3, C4, C5]
+
+
+
+
+############################################################
+#  Mobile net v2
+############################################################
+def expansion_layer(inputs, filters, kernel, strides,use_bias=True, train_bn=True):
+    """Convolution Block
+    This function defines a 2D convolution operation with BN and relu6.
     # Arguments
-        input_tensor: input tensor
-        kernel_size: default 3, the kernel size of middle conv layer at main path
-        filters: list of integers, the nb_filters of 3 conv layer at main path
-        stage: integer, current stage label, used for generating layer names
-        block: 'a','b'..., current block label, used for generating layer names
-        use_bias: Boolean. To use or not use a bias in conv layers.
-        train_bn: Boolean. Train or freeze Batch Norm layers
+        inputs: Tensor, input tensor of conv layer.
+        filters: Integer, the dimensionality of the output space.
+        kernel: An integer or tuple/list of 2 integers, specifying the
+            width and height of the 2D convolution window.
+        strides: An integer or tuple/list of 2 integers,
+            specifying the strides of the convolution along the width and height.
+            Can be a single integer to specify the same value for
+            all spatial dimensions.
+    # Returns
+        Output tensor.
     """
-    nb_filter1, nb_filter2, nb_filter3 = filters
-    conv_name_base = 'res' + str(stage) + block + '_branch'
-    bn_name_base = 'bn' + str(stage) + block + '_branch'
-
-    x = KL.Conv2D(nb_filter1, (1, 1), name=conv_name_base + '2a',
-                  use_bias=use_bias)(input_tensor)
-    x = BatchNorm(name=bn_name_base + '2a')(x, training=train_bn)
-    x = KL.Activation('relu')(x)
-
-    x = KL.Conv2D(nb_filter2, (kernel_size, kernel_size), padding='same',
-                  name=conv_name_base + '2b', use_bias=use_bias)(x)
-    x = BatchNorm(name=bn_name_base + '2b')(x, training=train_bn)
-    x = KL.Activation('relu')(x)
-
-    x = KL.Conv2D(nb_filter3, (1, 1), name=conv_name_base + '2c',
-                  use_bias=use_bias)(x)
-    x = BatchNorm(name=bn_name_base + '2c')(x, training=train_bn)
-
-    x = KL.Add()([x, input_tensor])
-    x = KL.Activation('relu', name='res' + str(stage) + block + '_out')(x)
-    return x
 
 
-def conv_block(input_tensor, kernel_size, filters, stage, block,
-               strides=(2, 2), use_bias=True, train_bn=True):
-    """conv_block is the block that has a conv layer at shortcut
+
+    x = KL.Conv2D(filters, kernel, strides=strides)(inputs)
+    x = BatchNorm(x,training=train_bn)
+    return KL.Activation(relu6)(x)
+
+def residual_block(inputs, filters, kernel, t, s, r=False,train_bn=True):
+    """Bottleneck
+    This function defines a basic bottleneck structure.
     # Arguments
-        input_tensor: input tensor
-        kernel_size: default 3, the kernel size of middle conv layer at main path
-        filters: list of integers, the nb_filters of 3 conv layer at main path
-        stage: integer, current stage label, used for generating layer names
-        block: 'a','b'..., current block label, used for generating layer names
-        use_bias: Boolean. To use or not use a bias in conv layers.
-        train_bn: Boolean. Train or freeze Batch Norm layers
-    Note that from stage 3, the first conv layer at main path is with subsample=(2,2)
-    And the shortcut should have subsample=(2,2) as well
+        inputs: Tensor, input tensor of conv layer.
+        filters: Integer, the dimensionality of the output space.
+        kernel: An integer or tuple/list of 2 integers, specifying the
+            width and height of the 2D convolution window.
+        t: Integer, expansion factor.
+            t is always applied to the input size.
+        s: An integer or tuple/list of 2 integers,specifying the strides
+            of the convolution along the width and height.Can be a single
+            integer to specify the same value for all spatial dimensions.
+        r: Boolean, Whether to use the residuals.
+    # Returns
+        Output tensor.
     """
-    nb_filter1, nb_filter2, nb_filter3 = filters
-    conv_name_base = 'res' + str(stage) + block + '_branch'
-    bn_name_base = 'bn' + str(stage) + block + '_branch'
+    channel_axis=-1
 
-    x = KL.Conv2D(nb_filter1, (1, 1), strides=strides,
-                  name=conv_name_base + '2a', use_bias=use_bias)(input_tensor)
-    x = BatchNorm(name=bn_name_base + '2a')(x, training=train_bn)
-    x = KL.Activation('relu')(x)
+    tchannel = K.int_shape(inputs)[channel_axis] * t
 
-    x = KL.Conv2D(nb_filter2, (kernel_size, kernel_size), padding='same',
-                  name=conv_name_base + '2b', use_bias=use_bias)(x)
-    x = BatchNorm(name=bn_name_base + '2b')(x, training=train_bn)
-    x = KL.Activation('relu')(x)
+    x = expansion_layer(inputs, tchannel, (1, 1), (1, 1),train_bn=train_bn)
 
-    x = KL.Conv2D(nb_filter3, (1, 1), name=conv_name_base +
-                  '2c', use_bias=use_bias)(x)
-    x = BatchNorm(name=bn_name_base + '2c')(x, training=train_bn)
+    x = DepthwiseConv2D(kernel, strides=(s, s), depth_multiplier=1)(x)
+    x = BatchNorm(x,training=train_bn)    
+    x = KL.Activation(relu6)(x)
 
-    shortcut = KL.Conv2D(nb_filter3, (1, 1), strides=strides,
-                         name=conv_name_base + '1', use_bias=use_bias)(input_tensor)
-    shortcut = BatchNorm(name=bn_name_base + '1')(shortcut, training=train_bn)
+    x = KL.Conv2D(filters, (1, 1), strides=(1, 1))(x)
+    x = BatchNorm(x,training=train_bn)    
 
-    x = KL.Add()([x, shortcut])
-    x = KL.Activation('relu', name='res' + str(stage) + block + '_out')(x)
-    return x
-
-
-def resnet_graph(input_image, architecture, stage5=False, train_bn=True):
-    """Build a ResNet graph.
-        architecture: Can be resnet50 or resnet101
-        stage5: Boolean. If False, stage5 of the network is not created
-        train_bn: Boolean. Train or freeze Batch Norm layers
-    """
-    assert architecture in ["resnet50", "resnet101"]
-    # Stage 1
-    x = KL.ZeroPadding2D((3, 3))(input_image)
-    x = KL.Conv2D(64, (7, 7), strides=(2, 2), name='conv1', use_bias=True)(x)
-    x = BatchNorm(name='bn_conv1')(x, training=train_bn)
-    x = KL.Activation('relu')(x)
-    C1 = x = KL.MaxPooling2D((3, 3), strides=(2, 2), padding="same")(x)
-    # Stage 2
-    x = conv_block(x, 3, [64, 64, 256], stage=2, block='a', strides=(1, 1), train_bn=train_bn)
-    x = identity_block(x, 3, [64, 64, 256], stage=2, block='b', train_bn=train_bn)
-    C2 = x = identity_block(x, 3, [64, 64, 256], stage=2, block='c', train_bn=train_bn)
-    # Stage 3
-    x = conv_block(x, 3, [128, 128, 512], stage=3, block='a', train_bn=train_bn)
-    x = identity_block(x, 3, [128, 128, 512], stage=3, block='b', train_bn=train_bn)
-    x = identity_block(x, 3, [128, 128, 512], stage=3, block='c', train_bn=train_bn)
-    C3 = x = identity_block(x, 3, [128, 128, 512], stage=3, block='d', train_bn=train_bn)
-    # Stage 4
-    x = conv_block(x, 3, [256, 256, 1024], stage=4, block='a', train_bn=train_bn)
-    block_count = {"resnet50": 5, "resnet101": 22}[architecture]
-    for i in range(block_count):
-        x = identity_block(x, 3, [256, 256, 1024], stage=4, block=chr(98 + i), train_bn=train_bn)
-    C4 = x
-    # Stage 5
-    if stage5:
-        x = conv_block(x, 3, [512, 512, 2048], stage=5, block='a', train_bn=train_bn)
-        x = identity_block(x, 3, [512, 512, 2048], stage=5, block='b', train_bn=train_bn)
-        C5 = x = identity_block(x, 3, [512, 512, 2048], stage=5, block='c', train_bn=train_bn)
+    if r:
+        x = add([x, inputs])
     else:
-        C5 = None
-    return [C1, C2, C3, C4, C5]
+        i=KL.Conv2D(filters, (1, 1), strides=(s,s))(inputs)
+        x=add([x,i])
+    return x
+
+def stage(inputs, filters, kernel, t, strides, n,train_bn):
+    """Inverted Residual Block
+    This function defines a sequence of 1 or more identical layers.
+    # Arguments
+        inputs: Tensor, input tensor of conv layer.
+        filters: Integer, the dimensionality of the output space.
+        kernel: An integer or tuple/list of 2 integers, specifying the
+            width and height of the 2D convolution window.
+        t: Integer, expansion factor.
+            t is always applied to the input size.
+        s: An integer or tuple/list of 2 integers,specifying the strides
+            of the convolution along the width and height.Can be a single
+            integer to specify the same value for all spatial dimensions.
+        n: Integer, layer repeat times.
+    # Returns
+        Output tensor.
+    """
+# (inputs, filters, kernel, t, s, r=False,train_bn=True):
+    x = residual_block(inputs, filters, kernel, t, strides,r=False,train_bn=train_bn)
+
+    for i in range(1, n):
+        x = residual_block(x, filters, kernel, t, 1, True,train_bn=train_bn)
+
+    return x
+
+def MobileNetv2(inputs,train_bn=True):
+    """MobileNetv2
+    This function defines a MobileNetv2 architectures.
+    # Arguments
+        input_shape: An integer or tuple/list of 3 integers, shape
+            of input tensor.
+        k: Integer, number of classes.
+    # Returns
+        MobileNetv2 model.
+    """
+    # expansion_layer(inputs, filters, kernel, strides,use_bias=True, train_bn=True)
+    # x = KL.Conv2D(filters, kernel, strides=strides)(inputs)
+
+    # x=KL.Conv2D()(inputs)
+    # (inputs, filters, kernel, t, strides, n,train_bn)
+    C1 = expansion_layer(inputs, 32, (3, 3), strides=(2, 2),train_bn=train_bn)
+
+    C1 = stage(C1, 16, (3, 3), t=1, strides=1, n=1,train_bn=train_bn)
+    C2 = stage(C1, 24, (3, 3), t=6, strides=2, n=2,train_bn=train_bn)
+    C3 = stage(C2, 32, (3, 3), t=6, strides=2, n=3,train_bn=train_bn)
+    C4 = stage(C3, 64, (3, 3), t=6, strides=2, n=4,train_bn=train_bn)
+    C4 = stage(C4, 96, (3, 3), t=6, strides=1, n=3,train_bn=train_bn)
+    C5 = stage(C4, 160, (3, 3), t=6, strides=2, n=3,train_bn=train_bn)
+    C5 = stage(C5, 320, (3, 3), t=6, strides=1, n=1,train_bn=train_bn)
+
+
+
+    return [C1,C2,C3,C4,C5]
 
 
 ############################################################
@@ -2245,10 +2375,12 @@ class MaskRCNN():
             _, C2, C3, C4, C5 = config.BACKBONE(input_image, stage5=True,
                                                 train_bn=config.TRAIN_BN)
         else:
-            _, C2, C3, C4, C5 = resnet_graph(input_image, config.BACKBONE,
-                                             stage5=True, train_bn=config.TRAIN_BN)
+            _, C2, C3, C4, C5=MobileNetv2(inputs,train_bn=True):
+            # _, C2, C3, C4, C5 = resnet_graph(input_image, config.BACKBONE,
+        # [C1, C2, C3, C4, C5]                             stage5=True, train_bn=config.TRAIN_BN)
         # Top-down Layers
         # TODO: add assert to varify feature map sizes match what's in config
+
         P5 = KL.Conv2D(config.TOP_DOWN_PYRAMID_SIZE, (1, 1), name='fpn_c5p5')(C5)
         P4 = KL.Add(name="fpn_p4add")([
             KL.UpSampling2D(size=(2, 2), name="fpn_p5upsampled")(P5),
