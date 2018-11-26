@@ -25,7 +25,9 @@ import keras.models as KM
 # from keras.models import Model
 # from keras.layers import Input, Conv2D, GlobalAveragePooling2D, Dropout
 # from keras.layers import Activation, BatchNormalization, add, Reshape
-from keras.applications.mobilenet import relu6, DepthwiseConv2D
+from keras.applications.mobilenet import  DepthwiseConv2D
+
+from keras.applications.mobilenet import relu6
 
 
 
