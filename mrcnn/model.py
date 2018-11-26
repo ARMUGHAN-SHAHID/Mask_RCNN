@@ -278,10 +278,11 @@ def residual_block(inputs, filters, kernel, t, s, r=False,train_bn=True):
     x = BatchNorm()(x,training=train_bn)    
 
     if r:
-        x = add([x, inputs])
+        x = KL.Add()([x, inputs])
     else:
         i=KL.Conv2D(filters, (1, 1), strides=(s,s))(inputs)
-        x=add([x,i])
+        x = KL.Add()([x, i])
+        
     return x
 
 def stage(inputs, filters, kernel, t, strides, n,train_bn):
