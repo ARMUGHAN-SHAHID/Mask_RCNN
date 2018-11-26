@@ -321,7 +321,7 @@ def MobileNetv2(inputs,train_bn=True):
 
     # x=KL.Conv2D()(inputs)
     # (inputs, filters, kernel, t, strides, n,train_bn)
-    C1 = expansion_layer(inputs,16,(7,7),strides=(1,1),train_bn=train_bn)#extra layer to cater fro receptive field
+    C1 = expansion_layer(inputs,16,(3,3),strides=(1,1),train_bn=train_bn)#extra layer to cater fro receptive field
     C1 = expansion_layer(C1, 32, (3, 3), strides=(2, 2),train_bn=train_bn)
 
     C1 = stage(C1, 16, (3, 3), t=1, strides=1, n=1,train_bn=train_bn)
