@@ -49,7 +49,7 @@ class CocoConfig(Config):
 
     # We use a GPU with 12GB memory, which can fit two images.
     # Adjust down if you use a smaller GPU.
-    IMAGES_PER_GPU = 1
+    IMAGES_PER_GPU = 3
 
     # Uncomment to train on 8 GPUs (default is 1)
     # GPU_COUNT = 8
@@ -60,6 +60,7 @@ class CocoConfig(Config):
     IMAGE_MIN_DIM = 400
     IMAGE_MAX_DIM = 512
     RPN_ANCHOR_SCALES = (16,32, 64, 128, 256)
+    TRAIN_BN = True
 
 ############################################################
 #  Dataset
