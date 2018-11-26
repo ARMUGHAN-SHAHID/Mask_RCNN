@@ -2378,7 +2378,7 @@ class MaskRCNN():
             _, C2, C3, C4, C5 = config.BACKBONE(input_image, stage5=True,
                                                 train_bn=config.TRAIN_BN)
         else:
-            _, C2, C3, C4, C5=MobileNetv2(inputs,train_bn=True)
+            _, C2, C3, C4, C5=MobileNetv2(input_image,train_bn=config.TRAIN_BN)
             # _, C2, C3, C4, C5 = resnet_graph(input_image, config.BACKBONE,
         # [C1, C2, C3, C4, C5]                             stage5=True, train_bn=config.TRAIN_BN)
         # Top-down Layers
