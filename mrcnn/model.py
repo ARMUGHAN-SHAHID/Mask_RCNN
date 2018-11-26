@@ -25,9 +25,9 @@ import keras.models as KM
 # from keras.models import Model
 # from keras.layers import Input, Conv2D, GlobalAveragePooling2D, Dropout
 # from keras.layers import Activation, BatchNormalization, add, Reshape
-from keras.applications.mobilenet import  DepthwiseConv2D
+# from keras.applications.mobilenet import  DepthwiseConv2D
 
-from keras.applications.mobilenet import relu6
+# from keras.applications.mobilenet import relu6
 
 
 
@@ -244,7 +244,8 @@ def expansion_layer(inputs, filters, kernel, strides,use_bias=True, train_bn=Tru
 
     x = KL.Conv2D(filters, kernel, strides=strides)(inputs)
     x = BatchNorm(x,training=train_bn)
-    return KL.Activation(relu6)(x)
+    return KL.RelU(6)(x)
+    # return KL.Activation(relu6)(x)
 
 def residual_block(inputs, filters, kernel, t, s, r=False,train_bn=True):
     """Bottleneck
@@ -269,9 +270,9 @@ def residual_block(inputs, filters, kernel, t, s, r=False,train_bn=True):
 
     x = expansion_layer(inputs, tchannel, (1, 1), (1, 1),train_bn=train_bn)
 
-    x = DepthwiseConv2D(kernel, strides=(s, s), depth_multiplier=1)(x)
+    x = KL.DepthwiseConv2D(kernel, strides=(s, s), depth_multiplier=1)(x)
     x = BatchNorm(x,training=train_bn)    
-    x = KL.Activation(relu6)(x)
+    x = KL.RelU(6)(x)
 
     x = KL.Conv2D(filters, (1, 1), strides=(1, 1))(x)
     x = BatchNorm(x,training=train_bn)    
@@ -321,8 +322,7 @@ def MobileNetv2(inputs,train_bn=True):
     # expansion_layer(inputs, filters, kernel, strides,use_bias=True, train_bn=True)
     # x = KL.Conv2D(filters, kernel, strides=strides)(inputs)
 
-    # x=KL.Conv2D()(inputs)
-    # (inputs, filters, kernel, t, strides, n,train_bn)
+
     C1 = expansion_layer(inputs,16,(3,3),strides=(1,1),train_bn=train_bn)#extra layer to cater fro receptive field
     C1 = expansion_layer(C1, 32, (3, 3), strides=(2, 2),train_bn=train_bn)
 
