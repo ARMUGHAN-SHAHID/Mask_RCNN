@@ -244,7 +244,7 @@ def expansion_layer(inputs, filters, kernel, strides,use_bias=True, train_bn=Tru
 
     x = KL.Conv2D(filters, kernel, strides=strides)(inputs)
     x = BatchNorm()(x,training=train_bn)
-    return KL.RelU(6)(x)
+    return KL.ReLU(6)(x)
     # return KL.Activation(relu6)(x)
 
 def residual_block(inputs, filters, kernel, t, s, r=False,train_bn=True):
@@ -272,7 +272,7 @@ def residual_block(inputs, filters, kernel, t, s, r=False,train_bn=True):
 
     x = KL.DepthwiseConv2D(kernel, strides=(s, s), depth_multiplier=1)(x)
     x = BatchNorm(x,training=train_bn)    
-    x = KL.RelU(6)(x)
+    x = KL.ReLU(6)(x)
 
     x = KL.Conv2D(filters, (1, 1), strides=(1, 1))(x)
     x = BatchNorm()(x,training=train_bn)    
