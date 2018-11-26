@@ -1135,20 +1135,20 @@ def build_fpn_shared_densepose_branch(rois,feature_maps, image_meta,
 def build_dense_u_v_i_graph(feature_map,config):
     num_patches=config.BODY_UV_RCNN_NUM_PATCHES
     ks=config.BODY_UV_RCNN_DECONV_KERNEL
-    u_lowres = KL.TimeDistributed(KL.Conv2DTranspose(num_patches+1, (ks, ks), strides=2),
-                           name="u_lowres")(feature_map)
-    v_lowres = KL.TimeDistributed(KL.Conv2DTranspose(num_patches+1, (ks, ks), strides=2),
-                           name="v_lowres")(feature_map)
-    i_lowres = KL.TimeDistributed(KL.Conv2DTranspose(num_patches+1, (ks, ks), strides=2),
-                           name="i_lowres")(feature_map)
+    # u_lowres = KL.TimeDistributed(KL.Conv2DTranspose(num_patches+1, (ks, ks), strides=2),
+    #                        name="u_lowres")(feature_map)
+    # v_lowres = KL.TimeDistributed(KL.Conv2DTranspose(num_patches+1, (ks, ks), strides=2),
+    #                        name="v_lowres")(feature_map)
+    # i_lowres = KL.TimeDistributed(KL.Conv2DTranspose(num_patches+1, (ks, ks), strides=2),
+    #                        name="i_lowres")(feature_map)
 
-    u_pred = KL.TimeDistributed(KL.Conv2DTranspose(num_patches+1, (ks, ks), strides=2),
-                           name="u_approximate")(u_lowres)
+    u_pred = KL.TimeDistributed(KL.Conv2DTranspose(num_patches+1, (ks, ks), strides=4),
+                           name="u_approximate")(feature_map)
 
-    v_pred = KL.TimeDistributed(KL.Conv2DTranspose(num_patches+1, (ks, ks), strides=2),
-                           name="v_approximate")(v_lowres)
-    i_pred = KL.TimeDistributed(KL.Conv2DTranspose(num_patches+1, (ks, ks), strides=2),
-                           name="i_approximate")(i_lowres)    
+    v_pred = KL.TimeDistributed(KL.Conv2DTranspose(num_patches+1, (ks, ks), strides=4),
+                           name="v_approximate")(feature_map)
+    i_pred = KL.TimeDistributed(KL.Conv2DTranspose(num_patches+1, (ks, ks), strides=4),
+                           name="i_approximate")(feature_map)    
     return u_pred,v_pred,i_pred
 
 ############################################################
