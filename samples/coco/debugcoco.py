@@ -431,9 +431,9 @@ if __name__ == '__main__':
     # Select weights file to load
     if args.model.lower() == "coco":
         model_path = COCO_MODEL_PATH
-    # elif args.model.lower() == "last":
+    elif args.model.lower() == "last":
         # Find last trained weights
-        # model_path = model.find_last()
+        model_path = model.find_last()
     elif args.model.lower() == "imagenet":
         # Start from ImageNet trained weights
         model_path = model.get_imagenet_weights()
@@ -441,8 +441,8 @@ if __name__ == '__main__':
         model_path = args.model
 
     # Load weights
-    # print("Loading weights ", model_path)
-    # model.load_weights(model_path, by_name=True)
+    print("Loading weights ", model_path)
+    model.load_weights(model_path, by_name=True)
 
     # Train or evaluate
     if args.command == "train":
@@ -496,7 +496,7 @@ if __name__ == '__main__':
         # Fine tune all layers
         print("Fine tune all layers")
         model.train(dataset_train, dataset_val,
-                    learning_rate=config.LEARNING_RATE / 10,
+                    learning_rate=config.LEARNING_RATE,
                     epochs=160,
                     layers='all',
                     augmentation=augmentation)
