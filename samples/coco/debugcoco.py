@@ -457,12 +457,33 @@ if __name__ == '__main__':
         #     dataset_train.load_coco(args.dataset, "valminusminival", year=args.year, auto_download=args.download)
         dataset_train.prepare()
 
-        # print ("loading gts fro the frist ten images\n")
-        # for ijk in range(len(dataset_train.image_info)//2):
-        #     im_info=dataset_train.image_info[ijk]
-        #     im_id=im_info['id']
-        #     dataset_train.load_image(ijk)
-        #     dataset_train.load_mask_and_dense_points(ijk)
+
+
+        print ("loading gts fro the frist  images\n")
+        for ijk in range(1):
+            im_info=dataset_train.image_info[ijk]
+            im_id=im_info['id']
+            dataset_train.load_image(ijk)
+            mask, class_ids,dense_x,dense_y,dense_u,dense_v,dense_i=dataset_train.load_mask_and_dense_points(ijk)
+            print (mask)
+            print("\n<--------->\n")
+            print (class_ids)
+            print("\n<--------->\n")
+
+            print (dense_x)
+            print("\n<--------->\n")
+            print (dense_y)
+            print("\n<--------->\n")
+            print (dense_i)
+
+            print("\n<--------->\n")
+            print (dense_u)
+
+            print("\n<--------->\n")
+            print (dense_v)
+
+            print("\n<--------->\n")
+        print ("end")
 
         # Validation dataset
         print ("loading dataset for validation")
@@ -496,12 +517,15 @@ if __name__ == '__main__':
 
         # Training - Stage 3
         # Fine tune all layers
-        print("Fine tune all layers")
-        model.train(dataset_train, dataset_val,
-                    learning_rate=config.LEARNING_RATE,
-                    epochs=160,
-                    layers='all',
-                    augmentation=augmentation)
+        # ------------------------------------------------------------------------------------
+        # print("Fine tune all layers")
+        # model.train(dataset_train, dataset_val,
+        #             learning_rate=config.LEARNING_RATE,
+        #             epochs=160,
+        #             layers='all',
+        #             augmentation=augmentation)
+        # ------------------------------------------------------------------------------------
+
 
     elif args.command == "evaluate":
         # Validation dataset
