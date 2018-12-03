@@ -29,6 +29,7 @@ import keras.models as KM
 
 # from keras.applications.mobilenet import relu6
 
+from keras.applications import MobileNetV2
 
 
 
@@ -224,121 +225,129 @@ def compute_backbone_shapes(config, image_shape):
 ############################################################
 #  Mobile net v2
 ############################################################
-def expansion_layer(inputs, filters, kernel, strides,use_bias=True, train_bn=True):
-    """Convolution Block
-    This function defines a 2D convolution operation with BN and relu6.
-    # Arguments
-        inputs: Tensor, input tensor of conv layer.
-        filters: Integer, the dimensionality of the output space.
-        kernel: An integer or tuple/list of 2 integers, specifying the
-            width and height of the 2D convolution window.
-        strides: An integer or tuple/list of 2 integers,
-            specifying the strides of the convolution along the width and height.
-            Can be a single integer to specify the same value for
-            all spatial dimensions.
-    # Returns
-        Output tensor.
-    """
+# def expansion_layer(inputs, filters, kernel, strides,use_bias=True, train_bn=True):
+#     """Convolution Block
+#     This function defines a 2D convolution operation with BN and relu6.
+#     # Arguments
+#         inputs: Tensor, input tensor of conv layer.
+#         filters: Integer, the dimensionality of the output space.
+#         kernel: An integer or tuple/list of 2 integers, specifying the
+#             width and height of the 2D convolution window.
+#         strides: An integer or tuple/list of 2 integers,
+#             specifying the strides of the convolution along the width and height.
+#             Can be a single integer to specify the same value for
+#             all spatial dimensions.
+#     # Returns
+#         Output tensor.
+#     """
 
 
 
-    x = KL.Conv2D(filters, kernel, strides=strides,padding='same')(inputs)
-    x = BatchNorm()(x,training=train_bn)
-    return KL.ReLU(6)(x)
-    # return KL.Activation(relu6)(x)
+#     x = KL.Conv2D(filters, kernel, strides=strides,padding='same')(inputs)
+#     x = BatchNorm()(x,training=train_bn)
+#     return KL.ReLU(6)(x)
+#     # return KL.Activation(relu6)(x)
 
-def residual_block(inputs, filters, kernel, t, s, r=False,train_bn=True):
-    """Bottleneck
-    This function defines a basic bottleneck structure.
-    # Arguments
-        inputs: Tensor, input tensor of conv layer.
-        filters: Integer, the dimensionality of the output space.
-        kernel: An integer or tuple/list of 2 integers, specifying the
-            width and height of the 2D convolution window.
-        t: Integer, expansion factor.
-            t is always applied to the input size.
-        s: An integer or tuple/list of 2 integers,specifying the strides
-            of the convolution along the width and height.Can be a single
-            integer to specify the same value for all spatial dimensions.
-        r: Boolean, Whether to use the residuals.
-    # Returns
-        Output tensor.
-    """
-    channel_axis=-1
+# def residual_block(inputs, filters, kernel, t, s, r=False,train_bn=True):
+#     """Bottleneck
+#     This function defines a basic bottleneck structure.
+#     # Arguments
+#         inputs: Tensor, input tensor of conv layer.
+#         filters: Integer, the dimensionality of the output space.
+#         kernel: An integer or tuple/list of 2 integers, specifying the
+#             width and height of the 2D convolution window.
+#         t: Integer, expansion factor.
+#             t is always applied to the input size.
+#         s: An integer or tuple/list of 2 integers,specifying the strides
+#             of the convolution along the width and height.Can be a single
+#             integer to specify the same value for all spatial dimensions.
+#         r: Boolean, Whether to use the residuals.
+#     # Returns
+#         Output tensor.
+#     """
+#     channel_axis=-1
 
-    tchannel = K.int_shape(inputs)[channel_axis] * t
+#     tchannel = K.int_shape(inputs)[channel_axis] * t
 
-    x = expansion_layer(inputs, tchannel, (1, 1), (1, 1),train_bn=train_bn)
+#     x = expansion_layer(inputs, tchannel, (1, 1), (1, 1),train_bn=train_bn)
 
-    x = KL.DepthwiseConv2D(kernel, strides=(s, s), depth_multiplier=1,padding='same')(x)
-    x = BatchNorm()(x,training=train_bn)    
-    x = KL.ReLU(6)(x)
+#     x = KL.DepthwiseConv2D(kernel, strides=(s, s), depth_multiplier=1,padding='same')(x)
+#     x = BatchNorm()(x,training=train_bn)    
+#     x = KL.ReLU(6)(x)
 
-    x = KL.Conv2D(filters, (1, 1), strides=(1, 1))(x)
-    x = BatchNorm()(x,training=train_bn)    
+#     x = KL.Conv2D(filters, (1, 1), strides=(1, 1))(x)
+#     x = BatchNorm()(x,training=train_bn)    
 
-    if r:
-        x = KL.Add()([x, inputs])
-    else:
-        i=KL.Conv2D(filters, (1, 1), strides=(s,s))(inputs)
-        x = KL.Add()([x, i])
+#     if r:
+#         x = KL.Add()([x, inputs])
+#     else:
+#         i=KL.Conv2D(filters, (1, 1), strides=(s,s))(inputs)
+#         x = KL.Add()([x, i])
         
-    return x
+#     return x
 
-def stage(inputs, filters, kernel, t, strides, n,train_bn):
-    """Inverted Residual Block
-    This function defines a sequence of 1 or more identical layers.
-    # Arguments
-        inputs: Tensor, input tensor of conv layer.
-        filters: Integer, the dimensionality of the output space.
-        kernel: An integer or tuple/list of 2 integers, specifying the
-            width and height of the 2D convolution window.
-        t: Integer, expansion factor.
-            t is always applied to the input size.
-        s: An integer or tuple/list of 2 integers,specifying the strides
-            of the convolution along the width and height.Can be a single
-            integer to specify the same value for all spatial dimensions.
-        n: Integer, layer repeat times.
-    # Returns
-        Output tensor.
-    """
-# (inputs, filters, kernel, t, s, r=False,train_bn=True):
-    x = residual_block(inputs, filters, kernel, t, strides,r=False,train_bn=train_bn)
+# def stage(inputs, filters, kernel, t, strides, n,train_bn):
+#     """Inverted Residual Block
+#     This function defines a sequence of 1 or more identical layers.
+#     # Arguments
+#         inputs: Tensor, input tensor of conv layer.
+#         filters: Integer, the dimensionality of the output space.
+#         kernel: An integer or tuple/list of 2 integers, specifying the
+#             width and height of the 2D convolution window.
+#         t: Integer, expansion factor.
+#             t is always applied to the input size.
+#         s: An integer or tuple/list of 2 integers,specifying the strides
+#             of the convolution along the width and height.Can be a single
+#             integer to specify the same value for all spatial dimensions.
+#         n: Integer, layer repeat times.
+#     # Returns
+#         Output tensor.
+#     """
+# # (inputs, filters, kernel, t, s, r=False,train_bn=True):
+#     x = residual_block(inputs, filters, kernel, t, strides,r=False,train_bn=train_bn)
 
-    for i in range(1, n):
-        x = residual_block(x, filters, kernel, t, 1, True,train_bn=train_bn)
+#     for i in range(1, n):
+#         x = residual_block(x, filters, kernel, t, 1, True,train_bn=train_bn)
 
-    return x
+#     return x
 
-def MobileNetv2(inputs,train_bn=True):
-    """MobileNetv2
-    This function defines a MobileNetv2 architectures.
-    # Arguments
-        input_shape: An integer or tuple/list of 3 integers, shape
-            of input tensor.
-        k: Integer, number of classes.
-    # Returns
-        MobileNetv2 model.
-    """
-    # expansion_layer(inputs, filters, kernel, strides,use_bias=True, train_bn=True)
-    # x = KL.Conv2D(filters, kernel, strides=strides)(inputs)
-
-
-    C1 = expansion_layer(inputs,16,(3,3),strides=(1,1),train_bn=train_bn)#extra layer to cater fro receptive field
-    C1 = expansion_layer(C1, 32, (3, 3), strides=(2, 2),train_bn=train_bn)
-
-    C1 = stage(C1, 16, (3, 3), t=1, strides=1, n=1,train_bn=train_bn)
-    C2 = stage(C1, 24, (3, 3), t=6, strides=2, n=2,train_bn=train_bn)
-    C3 = stage(C2, 32, (3, 3), t=6, strides=2, n=3,train_bn=train_bn)
-    C4 = stage(C3, 64, (3, 3), t=6, strides=2, n=4,train_bn=train_bn)
-    C4 = stage(C4, 96, (3, 3), t=6, strides=1, n=3,train_bn=train_bn)
-    C5 = stage(C4, 160, (3, 3), t=6, strides=2, n=3,train_bn=train_bn)
-    C5 = stage(C5, 320, (3, 3), t=6, strides=1, n=1,train_bn=train_bn)
+# def MobileNetv2(inputs,train_bn=True):
+#     """MobileNetv2
+#     This function defines a MobileNetv2 architectures.
+#     # Arguments
+#         input_shape: An integer or tuple/list of 3 integers, shape
+#             of input tensor.
+#         k: Integer, number of classes.
+#     # Returns
+#         MobileNetv2 model.
+#     """
+#     # expansion_layer(inputs, filters, kernel, strides,use_bias=True, train_bn=True)
+#     # x = KL.Conv2D(filters, kernel, strides=strides)(inputs)
 
 
+#     C1 = expansion_layer(inputs,16,(3,3),strides=(1,1),train_bn=train_bn)#extra layer to cater fro receptive field
+#     C1 = expansion_layer(C1, 32, (3, 3), strides=(2, 2),train_bn=train_bn)
 
-    return [C1,C2,C3,C4,C5]
+#     C1 = stage(C1, 16, (3, 3), t=1, strides=1, n=1,train_bn=train_bn)
+#     C2 = stage(C1, 24, (3, 3), t=6, strides=2, n=2,train_bn=train_bn)
+#     C3 = stage(C2, 32, (3, 3), t=6, strides=2, n=3,train_bn=train_bn)
+#     C4 = stage(C3, 64, (3, 3), t=6, strides=2, n=4,train_bn=train_bn)
+#     C4 = stage(C4, 96, (3, 3), t=6, strides=1, n=3,train_bn=train_bn)
+#     C5 = stage(C4, 160, (3, 3), t=6, strides=2, n=3,train_bn=train_bn)
+#     C5 = stage(C5, 320, (3, 3), t=6, strides=1, n=1,train_bn=train_bn)
 
+
+
+#     return [C1,C2,C3,C4,C5]
+
+ def MobileNetv2():
+    model=MobileNetV2(include_top=False)
+    layer_names=["expanded_conv_project_BN",'block_2_add',"block_5_add",'block_12_add','block_16_project_BN']
+    layers=[None,None,None,None,None]
+    for i,layer_name in enumerate(layer_names):
+        layers[i]=model.get_layer(layer_name).output
+
+    return model.input,*layers
 
 ############################################################
 #  Proposal Layer
@@ -2320,8 +2329,8 @@ class MaskRCNN():
                             "For example, use 256, 320, 384, 448, 512, ... etc. ")
 
         # Inputs
-        input_image = KL.Input(
-            shape=[None, None, config.IMAGE_SHAPE[2]], name="input_image")
+        # input_image = KL.Input(
+        #     shape=[None, None, config.IMAGE_SHAPE[2]], name="input_image")
         input_image_meta = KL.Input(shape=[config.IMAGE_META_SIZE],
                                     name="input_image_meta")
         if mode == "training":
@@ -2342,7 +2351,7 @@ class MaskRCNN():
                 shape=[None, 4], name="input_gt_boxes", dtype=tf.float32)
             # Normalize coordinates
             gt_boxes = KL.Lambda(lambda x: norm_boxes_graph(
-                x, K.shape(input_image)[1:3]))(input_gt_boxes)
+                x,(h,w))) (input_gt_boxes)
             # 3. GT Masks (zero padded)
             # [batch, height, width, MAX_GT_INSTANCES]
             if config.USE_MINI_MASK:
@@ -2379,7 +2388,9 @@ class MaskRCNN():
             _, C2, C3, C4, C5 = config.BACKBONE(input_image, stage5=True,
                                                 train_bn=config.TRAIN_BN)
         else:
-            _, C2, C3, C4, C5=MobileNetv2(input_image,train_bn=config.TRAIN_BN)
+            # _, C2, C3, C4, C5=MobileNetv2(input_image,train_bn=config.TRAIN_BN)
+            input_image,_, C2, C3, C4, C5=MobileNetv2()
+
             # _, C2, C3, C4, C5 = resnet_graph(input_image, config.BACKBONE,
         # [C1, C2, C3, C4, C5]                             stage5=True, train_bn=config.TRAIN_BN)
         # Top-down Layers
