@@ -340,7 +340,7 @@ def compute_backbone_shapes(config, image_shape):
 
 #     return [C1,C2,C3,C4,C5]
 
- def MobileNetv2():
+def MobileNetv2():
     model=MobileNetV2(include_top=False)
     layer_names=["expanded_conv_project_BN",'block_2_add',"block_5_add",'block_12_add','block_16_project_BN']
     layers=[None,None,None,None,None]
