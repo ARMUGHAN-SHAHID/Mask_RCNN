@@ -347,7 +347,7 @@ def MobileNetv2():
     for i,layer_name in enumerate(layer_names):
         layers[i]=model.get_layer(layer_name).output
 
-    return model.input,*layers
+    return model.input,layers[0],layers[1],layers[2],layers[3],layers[4]
 
 ############################################################
 #  Proposal Layer
