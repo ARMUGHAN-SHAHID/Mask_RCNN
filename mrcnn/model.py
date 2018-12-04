@@ -1244,23 +1244,40 @@ def build_fpn_mask_graph(rois, feature_maps, image_meta,
                            name="mrcnn_mask")(x)
     return x
 
-def build_fpn_shared_densepose_branch(rois,feature_maps, image_meta,
-                         pool_size,config,train_bn=True):
-    """Builds the computation graph of the mask head of Feature Pyramid Network.
-
-    rois: [batch, num_rois, (y1, x1, y2, x2)] Proposal boxes in normalized
-          coordinates.
-    feature_maps: List of feature maps from different layers of the pyramid,
-                  [P2, P3, P4, P5]. Each has a different resolution.
-    image_meta: [batch, (meta data)] Image details. See compose_image_meta()
-    pool_size: The width of the square feature map generated from ROI Pooling.
-    num_classes: number of classes, which determines the depth of the results
-    train_bn: Boolean. Train or freeze Batch Norm layers
-
-    Returns: Masks [batch, num_rois, MASK_POOL_SIZE, MASK_POOL_SIZE, NUM_CLASSES]
+def _timedistributed_depthwise_conv_block(inputs, pointwise_conv_filters, strides=(1, 1), prefix="conv_depthwise", train_bn=False):
+    """Similiar to the _depthwise_conv_block used in the Backbone,
+    but with each layer wrapped in a TimeDistributed layer,
+    used to build the computation graph of the mask head of the FPN.
     """
-    # ROI Pooling
-    # Shape: [batch, num_rois, MASK_POOL_SIZE, MASK_POOL_SIZE, channels]
+    channel_axis = 1 if K.image_data_format() == 'channels_first' else -1
+
+    # Depthwise
+    x = KL.TimeDistributed(KL.DepthwiseConv2D(
+                    (3, 3),
+                    padding='same',
+                    depth_multiplier=1,
+                    strides=strides,
+                    use_bias=False),
+                    name=prefix+"_depthwise")(inputs)
+    x = KL.TimeDistributed(BatchNorm(axis=channel_axis),
+                    name=prefix+"_depthwise_batchnorm")(x, training=train_bn)
+    x = KL.Activation(relu6, name=prefix+"_depthwise_relu6_batchnorm")(x)
+    # Pointwise
+    x = KL.TimeDistributed(KL.Conv2D(pointwise_conv_filters,
+                    (1, 1),
+                    padding='same',
+                    use_bias=False,
+                    strides=(1, 1)),
+                    name=prefix+"_pointwise")(x)
+    x = KL.TimeDistributed(BatchNorm(
+                    axis=channel_axis),
+                    name=prefix+"_pointwise_batchnorm")(x, training=train_bn)
+    return KL.Activation(relu6, name=prefix+"_pointwise_relu6_batchnorm")(x)
+
+
+def build_fpn_dense_shared_branch(rois,feature_maps, image_meta,
+                         pool_size,config,train_bn=True):
+    #builds the network that feeds tensors to i uv prediction branch
     kernel_size=config.BODY_UV_RCNN_KERNEL
     hidden_dim=config.BODY_UV_RCNN_CONV_HEAD_DIM
 
@@ -1269,9 +1286,11 @@ def build_fpn_shared_densepose_branch(rois,feature_maps, image_meta,
 
     # Conv layers
     for i in np.arange(config.BODY_UV_RCNN_NUM_STACKED_CONVS):
-        curr=KL.TimeDistributed(KL.Conv2D(hidden_dim, (kernel_size, kernel_size), padding="same"),
-                           name="dense_shared_conv_{}".format(i))(curr)
-        curr=KL.Activation('relu')(curr)
+        # curr=KL.TimeDistributed(KL.Conv2D(hidden_dim, (kernel_size, kernel_size), padding="same"),
+        #                    name="dense_shared_conv_{}".format(i))(curr)
+        # curr=KL.Activation('relu')(curr)
+        curr=_timedistributed_depthwise_conv_block(curr, hidden_dim, strides=(1, 1), prefix="dense_shared_", train_bn=train_bn):
+
 
     return curr
 
@@ -2497,7 +2516,7 @@ class MaskRCNN():
 
             mrcnn_mask = build_fpn_mask_graph(rois, mrcnn_feature_maps,input_image_meta,config.MASK_POOL_SIZE,config.NUM_CLASSES,
                 train_bn=config.TRAIN_BN)
-            feature_map_dense=build_fpn_shared_densepose_branch(rois, mrcnn_feature_maps,input_image_meta,config.BODY_UV_RCNN_POOL_SIZE,config,train_bn=config.TRAIN_BN)
+            feature_map_dense=build_fpn_dense_shared_branch(rois, mrcnn_feature_maps,input_image_meta,config.BODY_UV_RCNN_POOL_SIZE,config,train_bn=config.TRAIN_BN)
             # print (feature_map_dense)
             # print ("hello")
             u_pred,v_pred,i_pred=build_dense_u_v_i_graph(feature_map_dense,config)
