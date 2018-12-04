@@ -49,7 +49,7 @@ class CocoConfig(Config):
 
     # We use a GPU with 12GB memory, which can fit two images.
     # Adjust down if you use a smaller GPU.
-    IMAGES_PER_GPU = 2
+    IMAGES_PER_GPU = 4
 
     # Uncomment to train on 8 GPUs (default is 1)
     # GPU_COUNT = 8
@@ -68,12 +68,14 @@ class CocoConfig(Config):
         "mrcnn_class_loss": 1.,
         "mrcnn_bbox_loss": 1.,
         "mrcnn_mask_loss": 1.,
-        "u_loss": 0.001,
-        "v_loss": 0.001,
-        "i_loss": 1.0
+        "u_loss": 0.1,
+        "v_loss": 0.1,
+        "i_loss": 0.3
     }
 
     TRAIN_BN = True
+    LEARNING_RATE = 0.001
+
 
 ############################################################
 #  Dataset
