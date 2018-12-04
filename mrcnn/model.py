@@ -1289,7 +1289,7 @@ def build_fpn_dense_shared_branch(rois,feature_maps, image_meta,
         # curr=KL.TimeDistributed(KL.Conv2D(hidden_dim, (kernel_size, kernel_size), padding="same"),
         #                    name="dense_shared_conv_{}".format(i))(curr)
         # curr=KL.Activation('relu')(curr)
-        curr=_timedistributed_depthwise_conv_block(curr, hidden_dim, strides=(1, 1), prefix="dense_shared_", train_bn=train_bn):
+        curr=_timedistributed_depthwise_conv_block(curr, hidden_dim, strides=(1, 1), prefix="dense_shared_", train_bn=train_bn)
 
 
     return curr
