@@ -1261,7 +1261,8 @@ def _timedistributed_depthwise_conv_block(inputs, pointwise_conv_filters, stride
                     name=prefix+"_depthwise")(inputs)
     x = KL.TimeDistributed(BatchNorm(axis=channel_axis),
                     name=prefix+"_depthwise_batchnorm")(x, training=train_bn)
-    x = KL.Activation(relu6, name=prefix+"_depthwise_relu6_batchnorm")(x)
+    x = KL.ReLU(6)(x)
+    # x = KL.Activation(relu6, name=prefix+"_depthwise_relu6_batchnorm")(x)
     # Pointwise
     x = KL.TimeDistributed(KL.Conv2D(pointwise_conv_filters,
                     (1, 1),
@@ -1272,7 +1273,8 @@ def _timedistributed_depthwise_conv_block(inputs, pointwise_conv_filters, stride
     x = KL.TimeDistributed(BatchNorm(
                     axis=channel_axis),
                     name=prefix+"_pointwise_batchnorm")(x, training=train_bn)
-    return KL.Activation(relu6, name=prefix+"_pointwise_relu6_batchnorm")(x)
+    return KL.ReLU(6)(x)
+    # return KL.Activation(relu6, name=prefix+"_pointwise_relu6_batchnorm")(x)
 
 
 def build_fpn_dense_shared_branch(rois,feature_maps, image_meta,
