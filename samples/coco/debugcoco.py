@@ -74,7 +74,7 @@ class CocoConfig(Config):
     }
 
     TRAIN_BN = True
-    LEARNING_RATE = 0.001
+    LEARNING_RATE = 0.0003
 
 
 ############################################################
