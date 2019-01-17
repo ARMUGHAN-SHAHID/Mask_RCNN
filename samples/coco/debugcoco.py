@@ -433,19 +433,19 @@ if __name__ == '__main__':
                                   model_dir=args.logs)
 
     # Select weights file to load
-    if args.model.lower() == "coco":
-        model_path = COCO_MODEL_PATH
-    elif args.model.lower() == "last":
+    #if args.model.lower() == "coco":
+    #    model_path = COCO_MODEL_PATH
+    #elif args.model.lower() == "last":
         # Find last trained weights
-        model_path = model.find_last()
-    elif args.model.lower() == "imagenet":
+    #    model_path = model.find_last()
+    #elif args.model.lower() == "imagenet":
         # Start from ImageNet trained weights
-        model_path = model.get_imagenet_weights()
-    else:
-        model_path = args.model
+    #    model_path = model.get_imagenet_weights()
+    #else:
+     #   model_path = args.model
 
     # Load weights
-    print("Loading weights ", model_path)
+    #print("Loading weights ", model_path)
     #model.load_weights(model_path, by_name=True)
 
     # Train or evaluate
